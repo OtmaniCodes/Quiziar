@@ -1,4 +1,5 @@
 import 'package:client/src/utils/constants/constansts.dart';
+import 'package:client/src/utils/responsivity/responsivity.dart';
 import 'package:client/src/utils/theme/theming.dart';
 import 'package:client/src/view/root.dart';
 import 'package:client/src/view/screens/onboarding/onboarding.dart';
@@ -11,15 +12,24 @@ class Quiziar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GetMaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: kAppTitle,
-      theme: AppTheme().getTheme(),
-      home: const RootScreen(),
-      getPages: [
-        GetPage(name: '/onboarding', page: () => const OnboardingScreen()),
-        GetPage(name: '/home', page: () => const OnboardingScreen())
-      ],
+    return LayoutBuilder(
+      builder: (BuildContext context, BoxConstraints constraints) {
+        return OrientationBuilder(
+          builder: (BuildContext context, Orientation orientation) {
+            SizeConfig(designHeight: 640, designWidth: 360).init(constraints, orientation);
+            return GetMaterialApp(
+              debugShowCheckedModeBanner: false,
+              title: kAppTitle,
+              theme: AppTheme().getTheme(),
+              home: const RootScreen(),
+              getPages: [
+                GetPage(name: '/onboarding', page: () => const OnboardingScreen()),
+                GetPage(name: '/home', page: () => const OnboardingScreen())
+              ],
+            );
+          }
+        );
+      }
     );
   }
 }

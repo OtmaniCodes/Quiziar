@@ -1,7 +1,10 @@
 import 'package:client/src/utils/constants/constansts.dart';
+import 'package:client/src/utils/constants/palette.dart';
+import 'package:client/src/view/reused_widgets/reused_widgets.dart';
 import 'package:client/src/view/reused_widgets/widgets/comcont.dart';
 import 'package:client/src/view/reused_widgets/widgets/custom_text.dart';
 import 'package:flutter/material.dart';
+import 'package:client/src/utils/responsivity/responsivity.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({Key? key}) : super(key: key);
@@ -31,57 +34,60 @@ class _OnboardingScreenState extends State<OnboardingScreen>
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
-          child: Column(
-            children: [
-              const SizedBox(height: 15),
-              const AppLogo(),
-              const SizedBox(height: 50),
-              ComCont(
-                givenPadd: EdgeInsets.zero,
-                height: 400,
-                width: 400,
-                kid: Column(
-                  children: [
-                    TabBar(
-                      padding: EdgeInsets.zero,
-                      controller: _tabController,
-                      tabs: [
-                        Container(
-                          padding: const EdgeInsets.all(10),
-                          child: CustomText(txt: 'Sign up'),
-                        ),
-                        Container(
-                          padding: const EdgeInsets.all(10),
-                          child: CustomText(txt: 'Sign in'),
-                        ),
-                      ],
-                    ),
-                    Expanded(
-                      child: TabBarView(
+          child: Center(
+            child: Column(
+              children: [
+                ReusedWidgets.spaceOut(h: 20.h),
+                const AppLogo(),
+                ReusedWidgets.spaceOut(h: 50.h),
+                ComCont(
+                  withShadow: true,
+                  givenMarg: EdgeInsets.symmetric(horizontal: 20.w),
+                  givenPadd: EdgeInsets.zero,
+                  height: 348.h,
+                  width: 275.w,
+                  kid: Column(
+                    children: [
+                      TabBar(
                         controller: _tabController,
-                        children: [
-                          Column(
-                            // mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: TextField(
-                                      decoration: InputDecoration(hintText: 'Hello there'),
-                                    ),
-                                  ),
-                                ],
-                              )
-                            ],
+                        indicatorColor: Theme.of(context).primaryColor,
+                        padding: EdgeInsets.zero,
+                        labelPadding: EdgeInsets.zero,
+                        unselectedLabelColor: whiteClr.withOpacity(0.75),
+                        tabs: [
+                          Container(
+                            padding: const EdgeInsets.all(10),
+                            child: Text('Sign in', style: TextStyle(fontSize: 18.sp))
                           ),
-                          Container(),
+                          Container(
+                            padding: const EdgeInsets.all(10),
+                            child: Text('Sign Up', style: TextStyle(fontSize: 18.sp))
+                          ),
                         ],
                       ),
-                    ),
-                  ],
-                ),
-              )
-            ],
+                      Expanded(
+                        child: TabBarView(
+                          controller: _tabController,
+                          children: [
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              // mainAxisSize: MainAxisSize.min,
+                              children: [
+                                ReusedWidgets.spaceOut(h: 50.h),
+                                ComInputField(),
+                                ReusedWidgets.spaceOut(h: 14.h),
+                                ComInputField(),
+                              ],
+                            ),
+                            Container(),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+              ],
+            ),
           ),
         ),
       ),
@@ -90,7 +96,9 @@ class _OnboardingScreenState extends State<OnboardingScreen>
 }
 
 class AppLogo extends StatelessWidget {
-  const AppLogo({Key? key}) : super(key: key);
+  final double? bigTitleSize;
+  final double? smallTitleSize;
+  const AppLogo({Key? key, this.bigTitleSize, this.smallTitleSize}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -101,14 +109,31 @@ class AppLogo extends StatelessWidget {
           padding: const EdgeInsets.only(bottom: 5.0),
           child: CustomText(
             txt: kAppTitle,
-            size: 60,
+            size: bigTitleSize ?? 80,
             clr: Theme.of(context).primaryColor,
             fontFam: 'boldPoppins',
             letterSpacing: 5,
           ),
         ),
-        const CustomText(txt: '  Challenge your mind.', size: 15)
+        CustomText(txt: '  Challenge your mind.', size: smallTitleSize ?? 20)
       ],
+    );
+  }
+}
+
+
+class ComInputField extends StatelessWidget {
+  const ComInputField({ Key? key }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return ComCont(
+      givenPadd: EdgeInsets.zero,
+      givenMarg: EdgeInsets.symmetric(horizontal: 20),
+      withShadow: true,
+      kid: TextField(
+        decoration: InputDecoration(hintText: 'Hello there'),
+      ),
     );
   }
 }

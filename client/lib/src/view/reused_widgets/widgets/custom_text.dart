@@ -1,4 +1,5 @@
 import 'package:client/src/utils/constants/palette.dart';
+import 'package:client/src/utils/responsivity/responsivity.dart';
 import 'package:flutter/material.dart';
 
 class CustomText extends StatelessWidget {
@@ -46,7 +47,7 @@ class CustomText extends StatelessWidget {
           style: TextStyle(
           color: clr ?? whiteClr,
           decoration: underlined ? TextDecoration.underline : null,
-          fontSize: size ?? 18,
+          fontSize: size ?? 18.sp,
           fontWeight: isBold ? FontWeight.bold : boldness,
           fontFamily: fontFam,
           letterSpacing: letterSpacing
@@ -66,7 +67,7 @@ class CustomText extends StatelessWidget {
           height: height,
           color: clr ?? whiteClr,
           decoration: underlined ? TextDecoration.underline : null,
-          fontSize: size ?? 18,
+          fontSize: size ?? 18.sp,
           fontWeight: isBold ? FontWeight.bold : boldness,
           fontFamily: fontFam,
           letterSpacing: letterSpacing
