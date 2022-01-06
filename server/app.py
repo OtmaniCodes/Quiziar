@@ -29,8 +29,8 @@ class User(db.Model):
 def generate_uid(length):
     uid = ''
     text = 'abcdefghijklmnopqrstvwxxyz1234567890'
-    for i in range(length):
-        uid += text[randint(0, len(text)-1)]
+    for _ in range(length):
+        uid += [i for i in text][randint(0, len(text)-1)]
     return uid
 
 # decode_data = lambda data: json.loads(data.decode('utf-8')) 

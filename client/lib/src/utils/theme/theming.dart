@@ -65,8 +65,8 @@ TextStyle _textStyle(
           style: TextButton.styleFrom(textStyle: _textStyle())),
       // bottomSheetTheme: BottomSheetThemeData(
       //     backgroundColor: isDwhiteColor : whiteColor, elevation: 4),
-      highlightColor: whiteClr,
-      splashColor: whiteClr,
+      highlightColor: transClr,
+      splashColor: transClr,
       textSelectionTheme: TextSelectionThemeData(
         cursorColor: whiteClr,
         selectionColor: whiteClr,
@@ -77,21 +77,21 @@ TextStyle _textStyle(
       scaffoldBackgroundColor: secClr,
       brightness: Brightness.dark,
       visualDensity: VisualDensity.comfortable,
-      inputDecorationTheme: InputDecorationTheme(
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(15),
-        ),
-        filled: true,
-        fillColor: secClr,
-        focusColor: whiteClr,
-        hintStyle: TextStyle(color: whiteClr.withOpacity(0.15)),
-        // enabledBorder: OutlineInputBorder(
-        //   borderSide: BorderSide(color: whiteClr, width: 3.0),
-        // ),
-        // focusedBorder: OutlineInputBorder(
-        //   borderSide: whiteClr(color: whiteClr, width: 3.0),
-        // ),
-      ),
+      // inputDecorationTheme: InputDecorationTheme(
+      //   border: OutlineInputBorder(
+      //     borderRadius: BorderRadius.circular(15),
+      //   ),
+      //   filled: true,
+      //   fillColor: secClr,
+      //   focusColor: whiteClr,
+      //   hintStyle: TextStyle(color: whiteClr.withOpacity(0.15)),
+      //   // enabledBorder: OutlineInputBorder(
+      //   //   borderSide: BorderSide(color: whiteClr, width: 3.0),
+      //   // ),
+      //   // focusedBorder: OutlineInputBorder(
+      //   //   borderSide: whiteClr(color: whiteClr, width: 3.0),
+      //   // ),
+      // ),
     );
   }
 
