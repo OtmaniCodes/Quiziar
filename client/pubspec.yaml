@@ -15,8 +15,11 @@ dependencies:
   get: ^4.6.1
   get_it: ^7.2.0
   animate_do: ^2.0.0
-  shared_preferences: ^2.0.11
-  font_awesome_flutter: ^9.2.0
+  # shared_preferences: ^2.0.11
+  get_storage: ^2.0.3
+  font_awesome_flutter: ^9.2.0 #still not used
+  permission_handler: ^8.3.0
+  image_picker: ^0.8.4+4
 
   cupertino_icons: ^1.0.2
 

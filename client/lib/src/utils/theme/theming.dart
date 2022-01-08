@@ -18,10 +18,8 @@ TextStyle _textStyle(
     return TextTheme(
       headline1: _textStyle(fontFam: kFontFam),
       headline2: _textStyle(),
-      headline3:
-          _textStyle(fontFam: kFontFam, isBold: true, fontsize: 25),
-      headline4:
-          _textStyle(fontFam: kFontFam, isBold: true, fontsize: 18),
+      headline3: _textStyle(fontFam: kFontFam, isBold: true, fontsize: 25),
+      headline4: _textStyle(fontFam: kFontFam, isBold: true, fontsize: 18),
       bodyText1: _textStyle(fontFam: kFontFam),
       bodyText2: _textStyle(fontsize: 15),
       caption: _textStyle(),
@@ -31,7 +29,8 @@ TextStyle _textStyle(
       button: _textStyle()).apply(bodyColor: whiteClr, fontFamily: kFontFam);
   }
 
-  ThemeData getTheme(){
+  ThemeData getTheme(int themeOptionIndex){
+    if(themeOptionIndex == 0){
     return ThemeData(
       // pageTransitionsTheme: const PageTransitionsTheme(
       //   builders: {TargetPlatform.android : ZoomPageTransitionsBuilder(),
@@ -49,7 +48,7 @@ TextStyle _textStyle(
       hintColor: Colors.grey.withOpacity(0.3),
       buttonTheme: ButtonThemeData(
         textTheme: ButtonTextTheme.primary,
-        buttonColor: whiteClr,
+        buttonColor: proClr,
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ButtonStyle(
@@ -93,6 +92,9 @@ TextStyle _textStyle(
       //   // ),
       // ),
     );
+    }else{
+      return ThemeData.dark();
+    }
   }
 
 }
