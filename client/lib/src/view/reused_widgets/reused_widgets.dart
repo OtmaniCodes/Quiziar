@@ -3,6 +3,7 @@ import 'package:client/src/utils/constants/palette.dart';
 import 'package:client/src/view/reused_widgets/widgets/custom_text.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class ReusedWidgets{
   static spaceOut({double? h, double? w}){
@@ -23,6 +24,17 @@ class ReusedWidgets{
       color: bgColor,
       onPressed: onPress,
       child: kid ?? CustomText(txt: label ?? '', clr: textColor ?? whiteClr),
+    );
+  }
+
+  static showNotiSnakBar({required String message, bool fromTop = false, Color? bgColor}){
+    Get.showSnackbar(
+      GetSnackBar(
+        message: message,
+        snackPosition: fromTop ? SnackPosition.TOP : SnackPosition.BOTTOM,
+        borderRadius: kDefaultRadiusPadd,
+        backgroundColor: bgColor ?? Get.theme.primaryColor,
+      ),
     );
   }
 }

@@ -1,4 +1,4 @@
-import 'package:client/src/utils/prefs/prefs.dart';
+import 'package:client/src/services/db/local_storage/local_storage.dart';
 import 'package:client/src/utils/theme/theming.dart';
 import 'package:get/get.dart';
 
@@ -22,7 +22,7 @@ class ThemeController extends GetxController{
     super.onInit();
   }
 
-  saveThemeIndexToLocalStorage(int themeIndex){
+  void saveThemeIndexToLocalStorage(int themeIndex){
     LocalStorage().saveThemeOption(themeIndex);
   }
 

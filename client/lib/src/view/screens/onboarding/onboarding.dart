@@ -2,16 +2,18 @@
 
 import 'dart:io';
 
-import 'package:client/src/state/controllers/form_validation_controller.dart';
+import 'package:client/src/state/controllers/onboarding_controllers/form_validation_controller.dart';
+import 'package:client/src/state/controllers/onboarding_controllers/signup_stepper_index.dart';
 import 'package:client/src/state/controllers/profile_image_controller.dart';
-import 'package:client/src/state/controllers/theme.controller.dart';
+import 'package:client/src/state/controllers/user_contollers/email.dart';
+import 'package:client/src/state/controllers/user_contollers/password.dart';
+import 'package:client/src/state/controllers/user_contollers/username.dart';
 import 'package:client/src/utils/helpers/logger.dart';
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
 
 // my packages
 import 'package:client/src/view/reused_widgets/widgets/custom_text.dart';
-import 'package:client/src/state/controllers/signup_stepper_index.dart';
 import 'package:client/src/utils/constants/palette.dart';
 import 'package:client/src/view/reused_widgets/reused_widgets.dart';
 import 'package:client/src/view/reused_widgets/widgets/comcont.dart';
@@ -72,6 +74,16 @@ class _OnboardingScreenState extends State<OnboardingScreen> with SingleTickerPr
 
   @override
   Widget build(BuildContext context) {
+    // gets data from fields
+    final _usernameCtrler = Get.put(UsernameController());
+    final _passwordCtrler = Get.put(PasswordController());
+    final emailCtrler = Get.put(EmailController());
+    // for validating that data
+    final _siUsernameVaidatorCtrler = Get.put(SIUsernameValidationController());
+    final _siPasswordVaidatorCtrler = Get.put(SIPasswordValidationController());
+    final _usernameVaidatorCtrler = Get.put(UsernameValidationController());
+    final _passwordVaidatorCtrler = Get.put(PasswordValidationController());
+    final _emailVaidatorCtrler = Get.put(EmailValidationController());
     const int _stepsCount = 2;
     double _signFormHeight = 400.h;
     double _signFormWidth = 275.w;
@@ -100,9 +112,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> with SingleTickerPr
                         physics: const NeverScrollableScrollPhysics(), 
                         unselectedLabelColor: whiteClr.withOpacity(0.75),
                         onTap: (index){
-                          Get.find<FormValidationController>().resetAll();
+                          // if (_signTabViewIndexController.index != _tabController.index) _signTabViewIndexController.changeIndex(index);
+                          // Get.find<FormValidationController>().resetAll();
                         },
-                        tabs: [
+                        tabs: <Widget>[
                           Container(
                             padding: const EdgeInsets.all(10),
                             child: Text('Sign in', style: TextStyle(fontSize: 18.sp))
@@ -116,7 +129,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> with SingleTickerPr
                       Expanded(
                         child: TabBarView(
                           controller: _tabController,
-                          children: [
+                          children: <Widget>[
                             Center(
                               child: Column(
                                 // mainAxisSize: MainAxisSize.min,
@@ -126,7 +139,24 @@ class _OnboardingScreenState extends State<OnboardingScreen> with SingleTickerPr
                                   Expanded(
                                     child: Padding(
                                       padding: EdgeInsets.symmetric(horizontal: 10.w),
-                                      child: OnboardingTextFieldsForm(formKey: _signInFormKey, showUsername: true, showPassword: true),
+                                      child: OnboardingTextFieldsForm(
+                                        formKey: _signInFormKey,
+                                        showUsername: true,
+                                        showPassword: true,
+                                        onSubmit: (){
+                                          final bool _isValidated = _signInFormKey.currentState!.validate(); //? true if no errors 
+                                          final bool usernameValid = _usernameCtrler.username.isNotEmpty; //! add more username check
+                                          final bool passwordValid = _passwordCtrler.password.isNotEmpty; //! add more password checks
+                                          print(usernameValid);
+                                          print('==========');
+                                          print(passwordValid);
+                                          _siUsernameVaidatorCtrler.changeUsernameValidValidationState(!usernameValid);
+                                          _siPasswordVaidatorCtrler.changePasswordValidationState(!passwordValid);
+                                          if (_isValidated && usernameValid && passwordValid){
+                                            ReusedWidgets.showNotiSnakBar(message: "Go To Home");
+                                          }
+                                        },
+                                      ),
                                     ),
                                   ),
                                   ReusedWidgets.spaceOut(h: 20.h),
@@ -170,14 +200,22 @@ class _OnboardingScreenState extends State<OnboardingScreen> with SingleTickerPr
                                     }
                                   },
                                   onStepContinue: (){
-                                    List<GlobalKey<FormState>> _formKeys = [_signUp1FormKey, _signUp2FormKey];
                                     if (state.stepperStep < _stepsCount){
-                                      if (state.stepperStep < 2){
-                                        bool _validationResult = _formKeys[state.stepperStep].currentState!.validate();
-                                        print(_validationResult);
-                                        Get.find<FormValidationController>().changeFormValidation(!_validationResult, target: 'username') ;
+                                      if (state.stepperStep == 0){
+                                        final bool _isValidated = _signUp1FormKey.currentState!.validate(); //? true if no errors 
+                                          final bool usernameValid = _usernameCtrler.username.isNotEmpty; //! add more username check
+                                          final bool emailValid = emailCtrler.email.isNotEmpty; //! add more email checks
+                                          print(usernameValid);
+                                          print(emailValid);
+                                          _usernameVaidatorCtrler.changeUsernameValidValidationState(!usernameValid);
+                                          _emailVaidatorCtrler.changeEmailValidationState(!emailValid);
+                                          if (_isValidated && usernameValid && emailValid){
+                                            state.increment();
+                                          }
+                                      }else if (state.stepperStep == 1){
+                                        final bool passwordValid = _passwordCtrler.password.isNotEmpty; //! add more password checks
+                                        // final bool conpasswordValid = _passwordCtrler.password.isNotEmpty; //! add more password checks
                                       }
-                                      // state.increment();
                                     }
                                   },
                                   onStepCancel: (){
@@ -198,7 +236,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> with SingleTickerPr
                                           mainAxisSize: MainAxisSize.max,
                                           crossAxisAlignment: CrossAxisAlignment.stretch,
                                           children: [
-                                            OnboardingTextFieldsForm(formKey: _signUp1FormKey, showUsername: true, showEmail: true)
+                                            OnboardingTextFieldsForm(formKey: _signUp1FormKey, showUsername: true, showEmail: true, fromLogin: false,)
                                           ],
                                         ),
                                       ),
@@ -212,7 +250,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> with SingleTickerPr
                                         child: Column(
                                           crossAxisAlignment: CrossAxisAlignment.stretch,
                                           children: [
-                                            OnboardingTextFieldsForm(formKey: _signUp2FormKey, showPassword: true)
+                                            OnboardingTextFieldsForm(formKey: _signUp2FormKey, showPassword: true, fromLogin: false,)
                                           ],
                                         ),
                                       ),
