@@ -37,8 +37,10 @@ def generate_uid(length):
 # def decode_data(data):
 #     return json.loads(data.decode('utf-8')) 
 
+# check the validity of the given param
 check_validity = lambda x: True if x != None and len(x) != 0 else False
 
+# this route is used for registering new users
 @app.route('/api/user/register', methods=['GET', 'POST'])
 def register():
     req_success = False
@@ -70,6 +72,7 @@ def register():
         else:
             return jsonify({'isSuccess': req_success,'message': message, 'data': {}})
 
+# used for logging in existing users
 @app.route('/api/user/login', methods=['GET', 'POST'])
 def login():
     req_success = False
@@ -96,6 +99,7 @@ def login():
         else:
             return jsonify({'isSuccess': req_success,'message': message, 'data': {}})
 
+# premeneatly deletes a user from the server
 @app.route('/api/user/delete', methods = ['GET', 'POST'])
 def delete():
     req_success = False
