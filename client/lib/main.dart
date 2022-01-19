@@ -3,6 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';
 
 main() async {
-  await GetStorage.init(); // should be awaited for
+  await GetStorage.init();
   runApp(const Quiziar());
 }

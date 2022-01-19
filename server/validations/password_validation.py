@@ -1,5 +1,6 @@
 import re
 
+# a password is always 9 chars long, at least 1 symbol, 4 letters and 4 digits
 class PasswordValidartor:
 
     def __init__(self) -> None:
@@ -13,7 +14,7 @@ class PasswordValidartor:
     def password(self, password):
         self.__password = password
 
-    def validate_password(self):
+    def is_password_valid(self):
         validation_error = ''
         try:
             if len(self.password) < 8:
@@ -26,17 +27,13 @@ class PasswordValidartor:
                 digits_count = len([i for i in self.password if i.isnumeric()])
                 if symbols_count == 0:
                     validation_error = 'your password should include symbols like: @, %, &, $...'
-                elif letters_count < 5:
-                    validation_error = 'your password should include at least letters.'
-                elif digits_count < 5:
-                    validation_error = 'your password should include at least 5 digits.'                
+                elif letters_count < 4:
+                    validation_error = 'your password should include at least 4 letters.'
+                elif digits_count < 4:
+                    validation_error = 'your password should include at least 4 digits.'                
         except Exception as e:
-            print(e)
+            raise e
         if len(validation_error) == 0:
             return True
         else:
-            ValueError(validation_error)
-
-obj = PasswordValidartor()
-obj.password = 'ahmed'
-obj.validate_password()
+            raise ValueError(validation_error)

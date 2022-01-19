@@ -1,7 +1,9 @@
 import 'package:client/src/state/controllers/onboarding_controllers/form_validation_controller.dart';
+import 'package:client/src/state/controllers/user_contollers/con_password.dart';
 import 'package:client/src/state/controllers/user_contollers/email.dart';
-// import 'package:client/src/state/controllers/onboarding_controllers/validations/password_validation.dart';
 import 'package:client/src/state/controllers/user_contollers/password.dart';
+import 'package:client/src/state/controllers/user_contollers/signin_password.dart';
+import 'package:client/src/state/controllers/user_contollers/signin_username.dart';
 import 'package:client/src/state/controllers/user_contollers/username.dart';
 import 'package:client/src/utils/constants/palette.dart';
 import 'package:client/src/utils/responsivity/responsivity.dart';
@@ -10,6 +12,8 @@ import 'package:client/src/view/reused_widgets/widgets/comcont.dart';
 import 'package:client/src/view/reused_widgets/widgets/custom_text.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:animate_do/animate_do.dart' as animatedo;
+
 
 class OnboardingTextFieldsForm extends StatefulWidget {
   final bool fromLogin;
@@ -57,11 +61,22 @@ class _OnboardingTextFieldsFormState extends State<OnboardingTextFieldsForm> {
 
   @override
   Widget build(BuildContext context) {
-    final UsernameValidationController _usernameValidatorCtrler = Get.put(UsernameValidationController());
-    final EmailValidationController _emailValidatorCtrler = Get.put(EmailValidationController());
-    final _siPasswordVaidatorCtrler = Get.put(SIPasswordValidationController());
-    final _siUsernameVaidatorCtrler = Get.put(SIUsernameValidationController());
-    // final PasswordValidationController _passwordValidatorCtrler = Get.put(PasswordValidationController());
+    final _siPasswordVaidatorCtrler = Get.find<SIPasswordValidationController>();
+    final _siUsernameVaidatorCtrler = Get.find<SIUsernameValidationController>();
+    final _usernameValidatorCtrler = Get.find<UsernameValidationController>();
+    final _emailValidatorCtrler = Get.find<EmailValidationController>();
+    final _passwordVaidatorCtrler = Get.put(PasswordValidationController());
+    final _conPasswordVaidatorCtrler = Get.put(ConPasswordValidationController());
+    // Widget _buildValidFormWidget({required Widget dataEntry, required bool errorCondition, required String errorText}){
+    //   return Column(
+    //     crossAxisAlignment: CrossAxisAlignment.start,
+    //     children: [
+    //       dataEntry,
+    //       Obx(() => errorCondition ? CustomText(txt: errorText, size: 13, clr: Colors.red) : ReusedWidgets.spaceOut()),
+    //     ],
+    //   );
+    // }
+    Widget _getError(String txt) => Padding(padding: const EdgeInsets.only(left: 15), child: animatedo.ElasticIn(child: CustomText(txt: txt, size: 13, clr: Colors.red)));
     return Form(
           key: widget.formKey,
           child: Column(
@@ -81,8 +96,13 @@ class _OnboardingTextFieldsFormState extends State<OnboardingTextFieldsForm> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  _buildTextField(hintText: 'Username', controller: _usernameController!, icon: Icons.person, onChanged: (text) => Get.find<UsernameController>().setUsername(text)),
-                                  Obx(() => _siUsernameVaidatorCtrler.siUsernameValid.value ? const CustomText(txt: 'Please enter your username.', size: 13, clr: Colors.red,) : ReusedWidgets.spaceOut()),
+                                  // _buildValidFormWidget(
+                                  //   dataEntry: _buildTextField(hintText: 'Username', controller: _usernameController!, icon: Icons.person, onChanged: (text) => Get.find<SIUsernameController>().setSIUsername(text)), 
+                                  //   errorCondition: _siUsernameVaidatorCtrler.siUsernameValid.value,
+                                  //   errorText: "Please enter your username." 
+                                  // )
+                                  _buildTextField(hintText: 'Username', controller: _usernameController!, icon: Icons.person, onChanged: (text) => Get.find<SIUsernameController>().setSIUsername(text)),
+                                  Obx(() => _siUsernameVaidatorCtrler.siUsernameValid.value ? _getError(_siUsernameVaidatorCtrler.errorText.value) : ReusedWidgets.spaceOut()),
                                 ],
                               ),
                             ),
@@ -91,20 +111,21 @@ class _OnboardingTextFieldsFormState extends State<OnboardingTextFieldsForm> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  _buildTextField(hintText: 'Password', controller: _passwordController!, isPassword: true, icon: Icons.lock, inputType: TextInputType.visiblePassword, onChanged: (text) => Get.find<PasswordController>().setPassword(text)),
-                                  Obx(() => _siPasswordVaidatorCtrler.siPasswordValid.value ? const CustomText(txt: "Enter your password.", size: 13, clr: Colors.red,) : ReusedWidgets.spaceOut())
+                                  _buildTextField(hintText: 'Password', controller: _passwordController!, isPassword: true, icon: Icons.lock, inputType: TextInputType.visiblePassword, onChanged: (text) => Get.find<SIPasswordController>().setSIPassword(text)),
+                                  Obx(() => _siPasswordVaidatorCtrler.siPasswordValid.value ? _getError(_siPasswordVaidatorCtrler.errorText.value) : ReusedWidgets.spaceOut())
                                 ],
                               ),
                             ),
                           ],
                         ),
-
-
-
-
-
-                        if(!widget.fromLogin) _buildTextField(hintText: 'Username', controller: _usernameController!, icon: Icons.person, onChanged: (text) => Get.find<UsernameController>().setUsername(text)),
-                        if(!widget.fromLogin) Obx(() => _usernameValidatorCtrler.usernameValid.value ? const CustomText(txt: "username should not be blank or less than 4 letters.", size: 13, clr: Colors.red,) : ReusedWidgets.spaceOut())
+                        if(!widget.fromLogin)
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _buildTextField(hintText: 'Username', controller: _usernameController!, icon: Icons.person, onChanged: (text) => Get.find<UsernameController>().setUsername(text)),
+                            Obx(() => _usernameValidatorCtrler.usernameValid.value ? _getError(_usernameValidatorCtrler.errorText.value) : ReusedWidgets.spaceOut())
+                          ],
+                        ),
                       ],
                     ),
                   ),
@@ -113,18 +134,30 @@ class _OnboardingTextFieldsFormState extends State<OnboardingTextFieldsForm> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildTextField(hintText: 'Email', controller: _emailController!, icon: Icons.email, inputType: TextInputType.emailAddress, onChanged: (val) => Get.find<EmailController>().setEmail(val) ),
-                        if(!widget.fromLogin) Obx(() => _emailValidatorCtrler.emailValid.value ? const CustomText(txt: "enter a valid email", size: 13, clr: Colors.red,) : ReusedWidgets.spaceOut())
+                        _buildTextField(hintText: 'Email', controller: _emailController!, icon: Icons.email, inputType: TextInputType.emailAddress, onChanged: (val) => Get.find<EmailController>().setEmail(val)),
+                        if(!widget.fromLogin) Obx(() => _emailValidatorCtrler.emailValid.value ? _getError(_emailValidatorCtrler.errorText.value) : ReusedWidgets.spaceOut())
                       ],
                     ), 
                   ),
                   if (widget.showPassword && !widget.fromLogin) Padding(
                     padding: EdgeInsets.only(bottom: 13.h),
-                    child: _buildTextField(hintText: 'Password', controller: _passwordController!, isPassword: true, icon: Icons.lock, inputType: TextInputType.visiblePassword),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildTextField(hintText: 'Password', controller: _passwordController!, isPassword: true, icon: Icons.lock, inputType: TextInputType.visiblePassword, onChanged: (val) => Get.find<PasswordController>().setPassword(val)),
+                        Obx(() => _passwordVaidatorCtrler.passwordValid.value ? _getError(_passwordVaidatorCtrler.errorText.value) : ReusedWidgets.spaceOut())
+                      ],
+                    ),
                   ),
                   if (widget.showPassword && !widget.showUsername && !widget.fromLogin) Padding(
                     padding: EdgeInsets.only(bottom: 13.h),
-                    child: _buildTextField(hintText: 'Confirm password', controller: _conPasswordController!, isPassword: true, icon: Icons.lock, inputType: TextInputType.visiblePassword),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildTextField(hintText: 'Confirm password', controller: _conPasswordController!, isPassword: true, icon: Icons.lock, inputType: TextInputType.visiblePassword, onChanged: (val) => Get.find<ConPasswordController>().setConPassword(val)),
+                        Obx(() => _conPasswordVaidatorCtrler.conPasswordValid.value ? _getError(_conPasswordVaidatorCtrler.errorText.value) : ReusedWidgets.spaceOut())
+                      ],
+                    ),
                   ),
                 ],
               ),
@@ -132,14 +165,6 @@ class _OnboardingTextFieldsFormState extends State<OnboardingTextFieldsForm> {
             ],
           ),
         );
-    
-    
-    // GetBuilder<FormValidationController>(
-    //   init: FormValidationController(),
-    //   builder: (FormValidationController state) {
-    //     return 
-    //   }
-    // );
   }
 
   Widget _buildSubmitButton(BuildContext context, {required String label}) {
@@ -199,6 +224,7 @@ class _OnboardingTextFieldsFormState extends State<OnboardingTextFieldsForm> {
               ),
             ),
           ),
+          //TODO: password and confirm password fields get obsecured simultanously!
           isPassword
             ? GestureDetector(
               onTap: () => setState.call(() => passwordOn = !passwordOn),

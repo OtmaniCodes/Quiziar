@@ -5,9 +5,14 @@ import 'dart:io';
 import 'package:client/src/state/controllers/onboarding_controllers/form_validation_controller.dart';
 import 'package:client/src/state/controllers/onboarding_controllers/signup_stepper_index.dart';
 import 'package:client/src/state/controllers/profile_image_controller.dart';
+import 'package:client/src/state/controllers/user_contollers/con_password.dart';
 import 'package:client/src/state/controllers/user_contollers/email.dart';
 import 'package:client/src/state/controllers/user_contollers/password.dart';
+import 'package:client/src/state/controllers/user_contollers/signin_password.dart';
+import 'package:client/src/state/controllers/user_contollers/signin_username.dart';
 import 'package:client/src/state/controllers/user_contollers/username.dart';
+import 'package:client/src/utils/constants/enums.dart';
+import 'package:client/src/utils/helpers/help_functions.dart';
 import 'package:client/src/utils/helpers/logger.dart';
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
@@ -74,16 +79,36 @@ class _OnboardingScreenState extends State<OnboardingScreen> with SingleTickerPr
 
   @override
   Widget build(BuildContext context) {
-    // gets data from fields
+    //! use the following commented code instead of the one below it
+    //! when you figure out how to deal with the onboarding issue
+    // //* gets data from fields
+    // final _siUsernameCtrler = Get.find<SIUsernameController>();
+    // final _siPasswordCtrler = Get.find<SIPasswordController>();
+    // final _usernameCtrler = Get.find<UsernameController>();
+    // final _emailCtrler = Get.find<EmailController>();
+    // final _passwordCtrler = Get.find<PasswordController>();
+    // final _conPasswordCtrler = Get.find<ConPasswordController>();
+    // //* for validating that data
+    // final _siUsernameVaidatorCtrler = Get.find<SIUsernameValidationController>();
+    // final _siPasswordVaidatorCtrler = Get.find<SIPasswordValidationController>();
+    // final _usernameVaidatorCtrler = Get.find<UsernameValidationController>();
+    // final _emailVaidatorCtrler = Get.find<EmailValidationController>();
+    // final _passwordVaidatorCtrler = Get.find<PasswordValidationController>();
+    // final _conPasswordVaidatorCtrler = Get.find<ConPasswordValidationController>();
+    //* gets data from fields
+    final _siUsernameCtrler = Get.put(SIUsernameController());
+    final _siPasswordCtrler = Get.put(SIPasswordController());
     final _usernameCtrler = Get.put(UsernameController());
+    final _emailCtrler = Get.put(EmailController());
     final _passwordCtrler = Get.put(PasswordController());
-    final emailCtrler = Get.put(EmailController());
-    // for validating that data
+    final _conPasswordCtrler = Get.put(ConPasswordController());
+    //* for validating that data
     final _siUsernameVaidatorCtrler = Get.put(SIUsernameValidationController());
     final _siPasswordVaidatorCtrler = Get.put(SIPasswordValidationController());
     final _usernameVaidatorCtrler = Get.put(UsernameValidationController());
-    final _passwordVaidatorCtrler = Get.put(PasswordValidationController());
     final _emailVaidatorCtrler = Get.put(EmailValidationController());
+    final _passwordVaidatorCtrler = Get.put(PasswordValidationController());
+    final _conPasswordVaidatorCtrler = Get.put(ConPasswordValidationController());
     const int _stepsCount = 2;
     double _signFormHeight = 400.h;
     double _signFormWidth = 275.w;
@@ -114,6 +139,15 @@ class _OnboardingScreenState extends State<OnboardingScreen> with SingleTickerPr
                         onTap: (index){
                           // if (_signTabViewIndexController.index != _tabController.index) _signTabViewIndexController.changeIndex(index);
                           // Get.find<FormValidationController>().resetAll();
+                          if(index == 0){
+                            _usernameCtrler.username.value = '';
+                            _emailCtrler.email.value = '';
+                            _passwordCtrler.password.value = '';
+                            _conPasswordCtrler.conPassword.value = '';
+                          } else {
+                            _siUsernameCtrler.siUsername.value = '';
+                            _siPasswordCtrler.siPassword.value = '';
+                          }
                         },
                         tabs: <Widget>[
                           Container(
@@ -145,15 +179,34 @@ class _OnboardingScreenState extends State<OnboardingScreen> with SingleTickerPr
                                         showPassword: true,
                                         onSubmit: (){
                                           final bool _isValidated = _signInFormKey.currentState!.validate(); //? true if no errors 
-                                          final bool usernameValid = _usernameCtrler.username.isNotEmpty; //! add more username check
-                                          final bool passwordValid = _passwordCtrler.password.isNotEmpty; //! add more password checks
-                                          print(usernameValid);
-                                          print('==========');
-                                          print(passwordValid);
+                                          bool usernameValid = true;
+                                          String usernameError = 'Please fill out this field.';
+                                          bool passwordValid = true;
+                                          String passwordError = 'Please fill out this field.';
+                                          if(_siUsernameCtrler.siUsername.isEmpty){
+                                            usernameValid = false;
+                                            usernameError = 'Please fill out this field.';
+                                          }else if(_siUsernameCtrler.siUsername.value.length < 5){
+                                            usernameValid = false;
+                                            usernameError = 'Please enter a username no less than 5 characters.';
+                                          }
+                                          if(_siPasswordCtrler.siPassword.isEmpty){
+                                            passwordValid = false;
+                                            passwordError = 'Please fill out this field.';
+                                          }else if(_siPasswordCtrler.siPassword.value.length < 6){
+                                            passwordValid = false;
+                                            passwordError = 'Password should be at least 6 characters long.';
+                                          }
                                           _siUsernameVaidatorCtrler.changeUsernameValidValidationState(!usernameValid);
                                           _siPasswordVaidatorCtrler.changePasswordValidationState(!passwordValid);
                                           if (_isValidated && usernameValid && passwordValid){
+                                            _signInFormKey.currentState!.save();
+                                            HelpFuncs.hapticFeedback(HapticIntensity.medium);
                                             ReusedWidgets.showNotiSnakBar(message: "Go To Home");
+                                          }else {
+                                            _siUsernameVaidatorCtrler.changeErrorText(usernameError);
+                                            _siPasswordVaidatorCtrler.changeErrorText(passwordError);
+                                            HelpFuncs.hapticFeedback(HapticIntensity.vibrate, doubleHaptic: true);
                                           }
                                         },
                                       ),
@@ -186,7 +239,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> with SingleTickerPr
                                               bgColor: Theme.of(context).primaryColor,
                                               kid: Padding(
                                                 padding: EdgeInsets.fromLTRB(5.w, 5.h, 5.w, 5.h),
-                                                child: const CustomText(txt: 'Next'),
+                                                child: CustomText(txt: _stepIndex == 2 ? 'Done' : 'Next'),
                                               ),
                                             ),
                                           ],
@@ -203,18 +256,73 @@ class _OnboardingScreenState extends State<OnboardingScreen> with SingleTickerPr
                                     if (state.stepperStep < _stepsCount){
                                       if (state.stepperStep == 0){
                                         final bool _isValidated = _signUp1FormKey.currentState!.validate(); //? true if no errors 
-                                          final bool usernameValid = _usernameCtrler.username.isNotEmpty; //! add more username check
-                                          final bool emailValid = emailCtrler.email.isNotEmpty; //! add more email checks
-                                          print(usernameValid);
-                                          print(emailValid);
-                                          _usernameVaidatorCtrler.changeUsernameValidValidationState(!usernameValid);
-                                          _emailVaidatorCtrler.changeEmailValidationState(!emailValid);
-                                          if (_isValidated && usernameValid && emailValid){
-                                            state.increment();
-                                          }
+                                        bool usernameValid = true;
+                                        String usernameError = 'Please fill out this field.';
+                                        bool emailValid = true;
+                                        String emailError = 'Please fill out this field.';
+                                        if(_usernameCtrler.username.isEmpty){
+                                          usernameValid = false;
+                                          usernameError = 'Please fill out this field.';
+                                        }else if(_usernameCtrler.username.value.length < 5){
+                                          usernameValid = false;
+                                          usernameError = 'Please enter a username no less than 5 characters.';
+                                        }
+                                        if(_emailCtrler.email.isEmpty){
+                                          emailValid = false;
+                                          emailError = 'Please fill out this field.';
+                                        }else if(!GetUtils.isEmail(_emailCtrler.email.value)){
+                                          emailValid = false;
+                                          emailError = 'Please enter a valid email address.';
+                                        }
+                                        _usernameVaidatorCtrler.changeUsernameValidValidationState(!usernameValid);
+                                        _emailVaidatorCtrler.changeEmailValidationState(!emailValid);
+                                        if (_isValidated && usernameValid && emailValid){
+                                          HelpFuncs.hapticFeedback(HapticIntensity.medium);
+                                          _signUp1FormKey.currentState!.save();
+                                          if(FocusScope.of(context).hasFocus) FocusScope.of(context).unfocus();
+                                          state.increment();
+                                        }else{
+                                          _usernameVaidatorCtrler.changeErrorText(usernameError);
+                                          _emailVaidatorCtrler.changeErrorText(emailError);
+                                          HelpFuncs.hapticFeedback(HapticIntensity.vibrate, doubleHaptic: true);
+                                        }
                                       }else if (state.stepperStep == 1){
-                                        final bool passwordValid = _passwordCtrler.password.isNotEmpty; //! add more password checks
-                                        // final bool conpasswordValid = _passwordCtrler.password.isNotEmpty; //! add more password checks
+                                        final bool _isValidated = _signUp2FormKey.currentState!.validate(); //? true if no errors 
+                                        bool passwordValid = true;
+                                        String passwordError = 'Please fill out this field.';
+                                        bool conpasswordValid = true;
+                                        String conpasswordError = 'Please fill out this field.';
+                                        if(_passwordCtrler.password.isEmpty){
+                                          passwordValid = false;
+                                          passwordError = 'Please fill out this field.';
+                                        }else if(_passwordCtrler.password.value.length < 6){
+                                          passwordValid = false;
+                                          passwordError = 'Password should be at least 6 characters long.';
+                                        }
+                                        if(_conPasswordCtrler.conPassword.isEmpty){
+                                          conpasswordValid = false;
+                                          conpasswordError = 'Please fill out this field.';
+                                        }else if(_conPasswordCtrler.conPassword.value.length < 6){
+                                          conpasswordValid = false;
+                                          conpasswordError = 'Password should be at least 6 characters long.';
+                                        }else if(_conPasswordCtrler.conPassword.value != _passwordCtrler.password.value){
+                                          conpasswordValid = false;
+                                          conpasswordError = 'passwords do not match.';
+                                        }
+                                        _passwordVaidatorCtrler.changePasswordValidationState(!passwordValid);
+                                        _conPasswordVaidatorCtrler.changeConPasswordValidationState(!conpasswordValid);
+                                        if (_isValidated && passwordValid && conpasswordValid){
+                                          HelpFuncs.hapticFeedback(HapticIntensity.medium);
+                                          _signUp2FormKey.currentState!.save();
+                                          if(FocusScope.of(context).hasFocus) FocusScope.of(context).unfocus();
+                                          state.increment();
+                                        }else{
+                                          _passwordVaidatorCtrler.changeErrorText(passwordError);
+                                          _conPasswordVaidatorCtrler.changeErrorText(conpasswordError);
+                                          HelpFuncs.hapticFeedback(HapticIntensity.vibrate, doubleHaptic: true);
+                                        }
+                                      }else if (state.stepperStep == 2){
+                                        Get.toNamed('/home'); //! should be Get.offAll...
                                       }
                                     }
                                   },
@@ -236,7 +344,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> with SingleTickerPr
                                           mainAxisSize: MainAxisSize.max,
                                           crossAxisAlignment: CrossAxisAlignment.stretch,
                                           children: [
-                                            OnboardingTextFieldsForm(formKey: _signUp1FormKey, showUsername: true, showEmail: true, fromLogin: false,)
+                                            OnboardingTextFieldsForm(formKey: _signUp1FormKey, showUsername: true, showEmail: true, fromLogin: false)
                                           ],
                                         ),
                                       ),
@@ -250,7 +358,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> with SingleTickerPr
                                         child: Column(
                                           crossAxisAlignment: CrossAxisAlignment.stretch,
                                           children: [
-                                            OnboardingTextFieldsForm(formKey: _signUp2FormKey, showPassword: true, fromLogin: false,)
+                                            OnboardingTextFieldsForm(formKey: _signUp2FormKey, showPassword: true, fromLogin: false)
                                           ],
                                         ),
                                       ),
@@ -268,10 +376,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> with SingleTickerPr
                                               alignment: AlignmentDirectional.topEnd,
                                               children: [
                                                 ComCont(
-                                                  withRadius: false,
-                                                  isCircular: true,
                                                   givenPadd: EdgeInsets.symmetric(horizontal: 1.w, vertical: 1.w),
                                                   givenMarg: EdgeInsets.zero,
+                                                  withRadius: false,
+                                                  isCircular: true,
                                                   withShadow: true,
                                                   withBorder: true,
                                                   kid: GetBuilder<ProfileImageController>(
@@ -300,13 +408,13 @@ class _OnboardingScreenState extends State<OnboardingScreen> with SingleTickerPr
                                                 )
                                               ],
                                             ),
-                                            CustomText(txt: "Ahmed", size: 22.sp, fontFam: 'boldPoppins'),
+                                            CustomText(txt: _usernameCtrler.username.value, size: 22.sp, fontFam: 'boldPoppins'),
                                             ReusedWidgets.spaceOut(h: 10.h),
                                             Row(
                                               children: [
                                                 ReusedWidgets.getMaterialButton(
                                                   bgColor: Theme.of(context).primaryColor,
-                                                  kid: Icon(Icons.camera_alt),
+                                                  kid: const Icon(Icons.camera_alt),
                                                   onPress: () async {
                                                     if (await _askForStorageOrCameraPermission(context)){
                                                       _pickProfileImage(context, ImageSource.camera);
@@ -318,7 +426,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> with SingleTickerPr
                                                 const Spacer(),
                                                 ReusedWidgets.getMaterialButton(
                                                   bgColor: Theme.of(context).primaryColor,
-                                                  kid: Icon(Icons.image),
+                                                  kid: const Icon(Icons.image),
                                                   onPress: () async {
                                                     if (await _askForStorageOrCameraPermission(context, permissionForCamera: false)){
                                                       _pickProfileImage(context, ImageSource.gallery);
@@ -382,7 +490,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> with SingleTickerPr
                             borderColor: [1, 2].contains(state.imageAvatarIndex.length) ? index == int.parse(state.imageAvatarIndex) ? Theme.of(context).primaryColor : whiteClr : whiteClr,
                             kid: GestureDetector(
                               onTap: () {
-                                if (state.imagePicturePath.isEmpty) state.changeImagePicturePath('');
+                                if (state.imagePicturePath.isNotEmpty) state.changeImagePicturePath('');
                                 state.changeProfileAvatarIndex(index.toString());
                               },
                               child: CircleAvatar(

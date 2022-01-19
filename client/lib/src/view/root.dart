@@ -1,6 +1,7 @@
 import 'package:client/src/utils/constants/enums.dart';
 import 'package:client/src/view/screens/onboarding/onboarding.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class RootScreen extends StatelessWidget {
   const RootScreen({ Key? key }) : super(key: key);
@@ -22,6 +23,7 @@ class RootScreen extends StatelessWidget {
             case AuthState.authenticated:
               return Container();
             case AuthState.unAuthenticated:
+              // Get.offNamed('/onboarding');
               return OnboardingScreen();
           }
         }else{

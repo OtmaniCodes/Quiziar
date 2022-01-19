@@ -50,6 +50,8 @@ TextStyle _textStyle(
         textTheme: ButtonTextTheme.primary,
         buttonColor: proClr,
       ),
+  //     textSelectionColor: Colors.green,
+  // textSelectionHandleColor: Colors.blue,
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ButtonStyle(
           backgroundColor: MaterialStateProperty.all(whiteClr),

@@ -1,8 +1,10 @@
+import 'package:client/src/state/bindings/onboarding_binding.dart';
 import 'package:client/src/state/controllers/theme.controller.dart';
 import 'package:client/src/utils/constants/constansts.dart';
 import 'package:client/src/utils/responsivity/responsivity.dart';
 import 'package:client/src/utils/theme/theming.dart';
 import 'package:client/src/view/root.dart';
+import 'package:client/src/view/screens/home/home.dart';
 import 'package:client/src/view/screens/onboarding/onboarding.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -26,8 +28,8 @@ class Quiziar extends StatelessWidget {
               // theme: AppTheme().getTheme(),
               home: const RootScreen(),
               getPages: [
-                GetPage(name: '/onboarding', page: () => const OnboardingScreen()),
-                GetPage(name: '/home', page: () => const OnboardingScreen())
+                GetPage(name: '/onboarding', page: () => const OnboardingScreen()),//, binding: OnboardingBinding()),
+                GetPage(name: '/home', page: () => HomeScreen())
               ],
             );
           }
