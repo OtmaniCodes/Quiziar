@@ -1,25 +1,35 @@
-from datetime import datetime as dt
-from email import message
 from flask_sqlalchemy import SQLAlchemy 
 from flask import Flask, jsonify, request
-from random import randint
 from flask_bcrypt import Bcrypt
-import json
-from sqlalchemy import true
-# my packages
+import uuid
+from datetime import datetime as dt
 from validations.email_validation import EmailValidartor
 from validations.password_validation import PasswordValidartor
-# from models.user import User
+
+#? db.create_all() #- should be run once from the terminal (DONE)
+#? db.drop_all() #- should be run once from the terminal (DONE)
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
+sql_db = 'sqlite:///database.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = sql_db
 db = SQLAlchemy(app)
 bcryptor = Bcrypt(app)
 
-#? db.create_all() #- should be run once from the terminal (DONE)
+class Game(db.Model):
+    game_uid = db.Column(db.String(15), primary_key=True)
+    gamer_uid = db.Column(db.String(15), nullable=False)
+    questions_solved = db.Column(db.Integer, nullable=False, default=0)
+    questions_failed = db.Column(db.Integer, nullable=False, default=0)
+
+    def __repr__(self):
+        return f'User id: {self.game_uid}'
+
+    def __str__(self):
+        return f'User id: {self.game_uid}'
+
 
 class User(db.Model):
-    uid = db.Column(db.String(15), primary_key=True)
+    uid = db.Column(db.String(100), primary_key=True)
     username = db.Column(db.String(20), nullable=False)
     email = db.Column(db.String(50), nullable=False)
     password = db.Column(db.String(60), nullable=False)
@@ -31,35 +41,22 @@ class User(db.Model):
 
     def __str__(self):
         return f'User id: {self.uid}'
+ 
 
-def generate_uid(length):
-    uid = ''
-    text = 'abcdefghijklmnopqrstvwxxyz1234567890'
-    for _ in range(length):
-        uid += [i for i in text][randint(0, len(text)-1)]
-    return uid
-
-# decode_data = lambda data: json.loads(data.decode('utf-8')) 
-# def decode_data(data):
-#     return json.loads(data.decode('utf-8')) 
-
-# check the validity of the given param
 check_validity = lambda x: True if x != None and len(x) != 0 else False
 
-# this route is used for registering new users
 @app.route('/api/user/register', methods=['GET', 'POST'])
 def register():
     req_success = False
     message = ''
     if request.method == 'POST':
         try:
-            # data = decode_data(request.data)
             data = dict(request.form)
             username = data['username']
             email = data['email']
             password = data['password']
             if check_validity(username) and check_validity(password) and check_validity(email):
-                uid = generate_uid(15)
+                uid = str(uuid.uuid4())
                 user_in_db = User.query.filter_by(uid=uid).first()
                 if user_in_db is None:
                     if username not in [user.username for user in User.query.filter_by(username=username).all()]:
@@ -120,7 +117,7 @@ def login():
         else:
             return jsonify({'isSuccess': req_success,'message': message, 'data': {}})
 
-# premeneatly deletes a user from the server
+# premeneatly deletes a user from the app
 @app.route('/api/user/delete', methods = ['GET', 'POST'])
 def delete():
     req_success = False
@@ -155,7 +152,22 @@ def all_users():
             message = str(e)
         return jsonify({'isSuccess': req_success, 'message': message, 'data': all_users})
 
+# returns one user with the given uid
+@app.route("/api/user/by_id/<string:uid>", methods=["GET"])
+def user_by_id(uid):
+    req_success = False
+    message = ''
+    if request.method == 'GET':
+        try:
+            user = User.query.filter_by(uid=uid).first()
+            message = 'user is fetched successfuly'
+            req_success = True
+        except Exception as e:
+            message = str(e)
+        return jsonify({'isSuccess': req_success, 'message': message, 'data': {"username":user.username, "email":user.email, "uid": user.uid}})
+
+
 
 if __name__ == '__main__':
-    # app.run(debug=True)
-    app.run(debug=True, host='0.0.0.0', port=800)
+    app.run(debug=True)
+    # app.run(debug=True, host='0.0.0.0', port=800)

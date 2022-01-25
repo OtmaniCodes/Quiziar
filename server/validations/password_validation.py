@@ -1,5 +1,3 @@
-import re
-
 # a password is always 9 chars long, at least 1 symbol, 4 letters and 4 digits
 class PasswordValidartor:
 
