@@ -5,7 +5,8 @@ import 'package:flutter/material.dart';
 class AppLogo extends StatelessWidget {
   final double? bigTitleSize;
   final double? smallTitleSize;
-  const AppLogo({Key? key, this.bigTitleSize, this.smallTitleSize}) : super(key: key);
+  final double? lettersSpacing;
+  const AppLogo({Key? key, this.bigTitleSize, this.smallTitleSize, this.lettersSpacing}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +20,7 @@ class AppLogo extends StatelessWidget {
             size: bigTitleSize ?? 80,
             clr: Theme.of(context).primaryColor,
             fontFam: 'boldPoppins',
-            letterSpacing: 5,
+            letterSpacing: lettersSpacing ?? 5,
           ),
         ),
         CustomText(txt: '  Challenge your mind.', size: smallTitleSize ?? 20)

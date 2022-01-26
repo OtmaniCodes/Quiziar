@@ -14,7 +14,6 @@ class ComCont extends StatelessWidget {
   
   /// must be false if this.isCircular = true
   bool withRadius;
-  
   bool withBorder;
   bool withShadow;
   bool isCircular;

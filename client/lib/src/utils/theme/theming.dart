@@ -32,11 +32,7 @@ TextStyle _textStyle(
   ThemeData getTheme(int themeOptionIndex){
     if(themeOptionIndex == 0){
     return ThemeData(
-      // pageTransitionsTheme: const PageTransitionsTheme(
-      //   builders: {TargetPlatform.android : ZoomPageTransitionsBuilder(),
-      //   TargetPlatform.iOS : ZoomPageTransitionsBuilder()}
-      // ),
-      appBarTheme: AppBarTheme(centerTitle: true, backgroundColor: whiteClr),
+      appBarTheme: AppBarTheme(centerTitle: true, backgroundColor: mainClr, elevation: 0),
       primaryColor: proClr,
       // accentColor: white,
       // colorScheme: ColorScheme.light(),

@@ -11,7 +11,6 @@ class LocalStorage {
     if(_localStorage.read(CONSTANTS.kFirstLaunchKey) != null){
       isFirstLaunch = _localStorage.read(CONSTANTS.kFirstLaunchKey)!;
     } else {
-      // saveUserID(const Uuid().v1());
       _localStorage.write(CONSTANTS.kFirstLaunchKey, false);
     }
     return isFirstLaunch;
@@ -50,12 +49,12 @@ class LocalStorage {
   // }
 
   // /// saves user Id locally 
-  // void saveUserID(String userID){
-  //   prefs.setString(CONSTANTS.kUserIDKey, userID);
-  // }
+  void saveUserID(String userID){
+    _localStorage.write(CONSTANTS.kUserIDKey, userID);
+  }
 
-  // /// gets user Id stored locally
-  // String getUserID(){
-  //   return prefs.getString(CONSTANTS.kUserIDKey) ?? '';
-  // }
+  /// gets user Id stored locally
+  String getUserID(){
+    return _localStorage.read(CONSTANTS.kUserIDKey) ?? '';
+  }
 }

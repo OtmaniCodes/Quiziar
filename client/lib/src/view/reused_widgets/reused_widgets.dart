@@ -1,7 +1,8 @@
+import 'dart:io';
+
 import 'package:client/src/utils/constants/constansts.dart';
 import 'package:client/src/utils/constants/palette.dart';
 import 'package:client/src/view/reused_widgets/widgets/custom_text.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -12,6 +13,16 @@ class ReusedWidgets{
     : SizedBox(
       height: h,
       width: w,
+    );
+  }
+
+  static Widget getProfileImage({bool isAvatar = false, String? imageFilePath, int? avatarIndex, double? width}){
+    return CircleAvatar(
+      radius: width != null ? width / 2 : null,
+      backgroundColor: Colors.white,
+      backgroundImage: !isAvatar
+        ? FileImage(File(imageFilePath??'')) as ImageProvider
+        : AssetImage('assets/images/avatars/$avatarIndex.png'),
     );
   }
 
@@ -34,6 +45,16 @@ class ReusedWidgets{
         snackPosition: fromTop ? SnackPosition.TOP : SnackPosition.BOTTOM,
         borderRadius: kDefaultRadiusPadd,
         backgroundColor: bgColor ?? Get.theme.primaryColor,
+      ),
+    );
+  }
+
+  static Widget wrapWithInkEffect(Widget kid, {void Function()? onTap}){
+    return Material(
+      color: transClr,
+      child: InkWell(
+        onTap: onTap ?? (){},
+        child: kid,
       ),
     );
   }

@@ -6,10 +6,11 @@ import 'package:client/src/utils/theme/theming.dart';
 import 'package:client/src/view/root.dart';
 import 'package:client/src/view/screens/home/home.dart';
 import 'package:client/src/view/screens/onboarding/onboarding.dart';
+import 'package:client/src/view/screens/questions/questions.dart';
+import 'package:client/src/view/screens/settings/settings.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get/get_navigation/src/root/get_material_app.dart';
-import 'package:get/get_navigation/src/routes/get_route.dart';
+
 
 class Quiziar extends StatelessWidget {
   const Quiziar({ Key? key }) : super(key: key);
@@ -29,7 +30,9 @@ class Quiziar extends StatelessWidget {
               home: const RootScreen(),
               getPages: [
                 GetPage(name: '/onboarding', page: () => const OnboardingScreen()),//, binding: OnboardingBinding()),
-                GetPage(name: '/home', page: () => HomeScreen())
+                GetPage(name: '/home', page: () => const HomeScreen()),
+                GetPage(name: '/settings', page: () => const SettingsScreen(), transition: Transition.leftToRight),
+                GetPage(name: '/questions', page: () => const QuestionsScreen())
               ],
             );
           }

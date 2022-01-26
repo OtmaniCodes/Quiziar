@@ -1,7 +1,7 @@
 // ignore_for_file: curly_braces_in_flow_control_structures
-
 import 'dart:io';
 
+import 'package:client/src/services/auth/auth.dart';
 import 'package:client/src/state/controllers/onboarding_controllers/form_validation_controller.dart';
 import 'package:client/src/state/controllers/onboarding_controllers/signup_stepper_index.dart';
 import 'package:client/src/state/controllers/profile_image_controller.dart';
@@ -14,6 +14,7 @@ import 'package:client/src/state/controllers/user_contollers/username.dart';
 import 'package:client/src/utils/constants/enums.dart';
 import 'package:client/src/utils/helpers/help_functions.dart';
 import 'package:client/src/utils/helpers/logger.dart';
+import 'package:client/src/utils/service_locator.dart';
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
 
@@ -177,7 +178,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> with SingleTickerPr
                                         formKey: _signInFormKey,
                                         showUsername: true,
                                         showPassword: true,
-                                        onSubmit: (){
+                                        onSubmit: () async {
                                           final bool _isValidated = _signInFormKey.currentState!.validate(); //? true if no errors 
                                           bool usernameValid = true;
                                           String usernameError = 'Please fill out this field.';
@@ -202,7 +203,13 @@ class _OnboardingScreenState extends State<OnboardingScreen> with SingleTickerPr
                                           if (_isValidated && usernameValid && passwordValid){
                                             _signInFormKey.currentState!.save();
                                             HelpFuncs.hapticFeedback(HapticIntensity.medium);
-                                            ReusedWidgets.showNotiSnakBar(message: "Go To Home");
+                                            try {
+                                              String _feedback = await locator<AuthService>().loginWithUsernameAndPassword(username: _siUsernameCtrler.siUsername.value, password: _siPasswordCtrler.siPassword.value);
+                                              ReusedWidgets.showNotiSnakBar(message: _feedback);
+                                            } catch (e) {
+                                              DevLogger.logError("Error logging in");
+                                            }
+                                            ReusedWidgets.showNotiSnakBar(message: "Wecome back");
                                           }else {
                                             _siUsernameVaidatorCtrler.changeErrorText(usernameError);
                                             _siPasswordVaidatorCtrler.changeErrorText(passwordError);
@@ -235,7 +242,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> with SingleTickerPr
                                             ),
                                             ReusedWidgets.spaceOut(w: 10.w),
                                             ReusedWidgets.getMaterialButton(
-                                              onPress: _stepIndex < _stepsCount ? details.onStepContinue : (){},
+                                              onPress: _stepIndex <= _stepsCount ? details.onStepContinue : (){},
                                               bgColor: Theme.of(context).primaryColor,
                                               kid: Padding(
                                                 padding: EdgeInsets.fromLTRB(5.w, 5.h, 5.w, 5.h),
@@ -253,7 +260,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> with SingleTickerPr
                                     }
                                   },
                                   onStepContinue: (){
-                                    if (state.stepperStep < _stepsCount){
+                                    if (state.stepperStep <= _stepsCount){
                                       if (state.stepperStep == 0){
                                         final bool _isValidated = _signUp1FormKey.currentState!.validate(); //? true if no errors 
                                         bool usernameValid = true;
@@ -323,6 +330,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> with SingleTickerPr
                                         }
                                       }else if (state.stepperStep == 2){
                                         Get.toNamed('/home'); //! should be Get.offAll...
+                                        print("hu");
                                       }
                                     }
                                   },
