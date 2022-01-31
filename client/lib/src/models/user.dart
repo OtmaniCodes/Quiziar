@@ -34,4 +34,6 @@ class User {
     data['creationDate'] = creationDate;
     return data;
   }
+
+  bool get isNull => uid == null; 
 }

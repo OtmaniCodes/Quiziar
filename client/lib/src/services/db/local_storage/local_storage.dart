@@ -39,16 +39,26 @@ class LocalStorage {
   }
 
   /// saves username in locally
-  // void saveUserName(String userName){
-  //   prefs.setString(CONSTANTS.kUserNameKey, userName);
-  // }
+  void saveUserName(String userName){
+    _localStorage.write(CONSTANTS.kUserNameKey, userName);
+  }
 
-  // /// gets username stored locally
-  // String getUserName(){
-  //   return prefs.getString(CONSTANTS.kUserNameKey) ?? '';
-  // }
+  /// gets username stored locally
+  String getUserName(){
+    return _localStorage.read(CONSTANTS.kUserNameKey) ?? '';
+  }
 
-  // /// saves user Id locally 
+  /// saves email locally
+  void saveUserEmail(String email){
+    _localStorage.write(CONSTANTS.kUserEmailKey, email);
+  }
+
+  /// gets email stored locally
+  String getUserEmail(){
+    return _localStorage.read(CONSTANTS.kUserEmailKey) ?? '';
+  }
+
+  /// saves user Id locally 
   void saveUserID(String userID){
     _localStorage.write(CONSTANTS.kUserIDKey, userID);
   }

@@ -2,6 +2,7 @@
 import 'dart:io';
 
 import 'package:client/src/services/auth/auth.dart';
+import 'package:client/src/services/db/local_storage/local_storage.dart';
 import 'package:client/src/state/controllers/onboarding_controllers/form_validation_controller.dart';
 import 'package:client/src/state/controllers/onboarding_controllers/signup_stepper_index.dart';
 import 'package:client/src/state/controllers/profile_image_controller.dart';
@@ -201,15 +202,19 @@ class _OnboardingScreenState extends State<OnboardingScreen> with SingleTickerPr
                                           _siUsernameVaidatorCtrler.changeUsernameValidValidationState(!usernameValid);
                                           _siPasswordVaidatorCtrler.changePasswordValidationState(!passwordValid);
                                           if (_isValidated && usernameValid && passwordValid){
-                                            _signInFormKey.currentState!.save();
                                             HelpFuncs.hapticFeedback(HapticIntensity.medium);
+                                            _signInFormKey.currentState!.save();
                                             try {
                                               String _feedback = await locator<AuthService>().loginWithUsernameAndPassword(username: _siUsernameCtrler.siUsername.value, password: _siPasswordCtrler.siPassword.value);
-                                              ReusedWidgets.showNotiSnakBar(message: _feedback);
+                                              if(_feedback == 'user is successfuly logged in'){
+                                                Get.offAllNamed("/home");
+                                                print(_feedback);
+                                              }else{
+                                                ReusedWidgets.showNotiSnakBar(message: _feedback);
+                                              }
                                             } catch (e) {
-                                              DevLogger.logError("Error logging in");
+                                              DevLogger.logError(e.toString(), cause: "Signin form");
                                             }
-                                            ReusedWidgets.showNotiSnakBar(message: "Wecome back");
                                           }else {
                                             _siUsernameVaidatorCtrler.changeErrorText(usernameError);
                                             _siPasswordVaidatorCtrler.changeErrorText(passwordError);
@@ -259,7 +264,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> with SingleTickerPr
                                       state.setStepperStep(stepIndex);
                                     }
                                   },
-                                  onStepContinue: (){
+                                  onStepContinue: () async {
                                     if (state.stepperStep <= _stepsCount){
                                       if (state.stepperStep == 0){
                                         final bool _isValidated = _signUp1FormKey.currentState!.validate(); //? true if no errors 
@@ -329,8 +334,29 @@ class _OnboardingScreenState extends State<OnboardingScreen> with SingleTickerPr
                                           HelpFuncs.hapticFeedback(HapticIntensity.vibrate, doubleHaptic: true);
                                         }
                                       }else if (state.stepperStep == 2){
-                                        Get.toNamed('/home'); //! should be Get.offAll...
-                                        print("hu");
+                                        try {
+                                          String _feedback = await locator<AuthService>().registerWithUsernameAndPassword(
+                                            username: _usernameCtrler.username.value,
+                                            password: _passwordCtrler.password.value,
+                                            email: _emailCtrler.email.value,
+                                          );
+                                          if(_feedback == 'user is successfuly registered'){
+                                            final _profileImageCtler = Get.find<ProfileImageController>();
+                                            String uid = LocalStorage().getUserID();
+                                            String _uploadResult = '';
+                                            if(_profileImageCtler.imagePicturePath.isNotEmpty){
+                                              _uploadResult = await locator<AuthService>().uploadProfileImageFile(uid, _profileImageCtler.imagePicturePath);
+                                            }else {
+                                              _uploadResult = await locator<AuthService>().uploadProfileAvatarIndex(uid, int.parse(_profileImageCtler.imageAvatarIndex));
+                                            }
+                                            print(_uploadResult);
+                                            Get.toNamed('/home'); //! should be Get.offAll...
+                                          }else{
+                                            ReusedWidgets.showNotiSnakBar(message: _feedback);
+                                          }
+                                        } catch (e) {
+                                          DevLogger.logError(e.toString(), cause: "Signup form");
+                                        }
                                       }
                                     }
                                   },
@@ -393,11 +419,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> with SingleTickerPr
                                                   kid: GetBuilder<ProfileImageController>(
                                                     init: ProfileImageController(),
                                                     builder: (ProfileImageController state){
-                                                      return CircleAvatar(
-                                                        radius: 40,
-                                                        backgroundImage: state.imagePicturePath.isNotEmpty
-                                                          ? FileImage(File(state.imagePicturePath)) as ImageProvider
-                                                          : AssetImage('assets/images/avatars/${state.imageAvatarIndex.isEmpty ? math.Random().nextInt(16)+1 : [1, 2].contains(state.imageAvatarIndex.length) ? int.parse(state.imageAvatarIndex)+1 : 'file path' }.png'),
+                                                      return ReusedWidgets.getProfileImage(
+                                                        width: 80,
+                                                        isAvatar: state.imagePicturePath.isEmpty,
+                                                        imageFilePath: state.imagePicturePath,
+                                                        avatarIndex: int.parse(state.imageAvatarIndex)+1
                                                       );
                                                     } 
                                                   ),

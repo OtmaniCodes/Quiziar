@@ -4,8 +4,11 @@ import 'package:flutter/material.dart';
 
 class AppTheme{
 
-TextStyle _textStyle(
-      {String fontFam = kFontFam, double fontsize = 16, bool isBold = false}) {
+  static Color getPrimaryColor(int themeIndex) => [proClr, proClr1, proClr2][themeIndex];
+  static Color getSecondaryColor(int themeIndex) => [mainClr, mainClr1, mainClr2][themeIndex];
+  static Color getCanvasColor(int themeIndex) => [secClr, secClr1, secClr2][themeIndex];
+
+  TextStyle _textStyle({String fontFam = kFontFam, double fontsize = 16, bool isBold = false}) {
     return TextStyle(
       fontSize: fontsize,
       fontFamily: fontFam,
@@ -29,22 +32,21 @@ TextStyle _textStyle(
       button: _textStyle()).apply(bodyColor: whiteClr, fontFamily: kFontFam);
   }
 
-  ThemeData getTheme(int themeOptionIndex){
-    if(themeOptionIndex == 0){
+  ThemeData getTheme(int themeIndex){
     return ThemeData(
-      appBarTheme: AppBarTheme(centerTitle: true, backgroundColor: mainClr, elevation: 0),
-      primaryColor: proClr,
+      appBarTheme: AppBarTheme(centerTitle: true, backgroundColor: AppTheme.getCanvasColor(themeIndex), elevation: 0),
+      primaryColor: AppTheme.getPrimaryColor(themeIndex),
       // accentColor: white,
       // colorScheme: ColorScheme.light(),
-      iconTheme: IconThemeData(color: whiteClr),
-      canvasColor: mainClr,
+      iconTheme: IconThemeData(color: themeIndex == 1 ? blackClr : whiteClr),
+      canvasColor: AppTheme.getCanvasColor(themeIndex),
       textTheme: _getTextTheme(),
       primaryTextTheme: _getTextTheme(),
       fontFamily: kFontFam,
       hintColor: Colors.grey.withOpacity(0.3),
       buttonTheme: ButtonThemeData(
         textTheme: ButtonTextTheme.primary,
-        buttonColor: proClr,
+        buttonColor: AppTheme.getPrimaryColor(themeIndex),
       ),
   //     textSelectionColor: Colors.green,
   // textSelectionHandleColor: Colors.blue,
@@ -52,47 +54,37 @@ TextStyle _textStyle(
         style: ButtonStyle(
           backgroundColor: MaterialStateProperty.all(whiteClr),
           shadowColor:  MaterialStateProperty.all(const Color(0xA3000000)),
-          shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(0.0),)),
+          shape: MaterialStateProperty.all<RoundedRectangleBorder>(RoundedRectangleBorder(borderRadius: BorderRadius.circular(0.0))),
         ),
       ),
-      outlinedButtonTheme: OutlinedButtonThemeData(
-          style: OutlinedButton.styleFrom(textStyle: _textStyle())),
-      textButtonTheme: TextButtonThemeData(
-          style: TextButton.styleFrom(textStyle: _textStyle())),
+      outlinedButtonTheme: OutlinedButtonThemeData(style: OutlinedButton.styleFrom(textStyle: _textStyle())),
+      textButtonTheme: TextButtonThemeData(style: TextButton.styleFrom(textStyle: _textStyle())),
       // bottomSheetTheme: BottomSheetThemeData(
       //     backgroundColor: isDwhiteColor : whiteColor, elevation: 4),
-      highlightColor: transClr,
-      splashColor: transClr,
-      textSelectionTheme: TextSelectionThemeData(
-        cursorColor: whiteClr,
-        selectionColor: whiteClr,
-        selectionHandleColor: whiteClr,
-      ),
+      // highlightColor: transClr,
+      // splashColor: transClr,
+      textSelectionTheme: TextSelectionThemeData(cursorColor: AppTheme.getPrimaryColor(themeIndex), selectionColor: whiteClr, selectionHandleColor: whiteClr),
       // backgroundColor: isDark ? darkMainColor : lightMainColor,
       // unselectedWidgetColor: whiteColor,
-      scaffoldBackgroundColor: secClr,
+      scaffoldBackgroundColor: AppTheme.getSecondaryColor(themeIndex),
       brightness: Brightness.dark,
       visualDensity: VisualDensity.comfortable,
       // inputDecorationTheme: InputDecorationTheme(
-      //   border: OutlineInputBorder(
-      //     borderRadius: BorderRadius.circular(15),
-      //   ),
-      //   filled: true,
-      //   fillColor: secClr,
-      //   focusColor: whiteClr,
-      //   hintStyle: TextStyle(color: whiteClr.withOpacity(0.15)),
-      //   // enabledBorder: OutlineInputBorder(
-      //   //   borderSide: BorderSide(color: whiteClr, width: 3.0),
-      //   // ),
-      //   // focusedBorder: OutlineInputBorder(
-      //   //   borderSide: whiteClr(color: whiteClr, width: 3.0),
-      //   // ),
+        // border: OutlineInputBorder(
+        //   borderRadius: BorderRadius.circular(15),
+        // ),
+        // filled: true,
+        // fillColor: AppTheme.getSecondaryColor(themeIndex),
+        // focusColor: whiteClr,
+        // hintStyle: TextStyle(color: whiteClr.withOpacity(0.15)),
+        // enabledBorder: OutlineInputBorder(
+        //   borderSide: BorderSide(color: whiteClr, width: 3.0),
+        // ),
+        // focusedBorder: OutlineInputBorder(
+        //   borderSide: whiteClr(color: whiteClr, width: 3.0),
+        // ),
       // ),
     );
-    }else{
-      return ThemeData.dark();
-    }
   }
 
 }

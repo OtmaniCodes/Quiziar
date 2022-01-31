@@ -1,3 +1,4 @@
+from email.policy import default
 from flask_sqlalchemy import SQLAlchemy 
 from flask import Flask, jsonify, request
 from flask_bcrypt import Bcrypt
@@ -16,13 +17,10 @@ db = SQLAlchemy(app)
 bcryptor = Bcrypt(app)
 
 class Game(db.Model):
-    game_uid = db.Column(db.String(15), primary_key=True)
-    gamer_uid = db.Column(db.String(15), nullable=False)
+    game_id = db.Column(db.String(15), primary_key=True)
+    gamer_id = db.Column(db.String(15), nullable=False)
     questions_solved = db.Column(db.Integer, nullable=False, default=0)
     questions_failed = db.Column(db.Integer, nullable=False, default=0)
-
-    def __repr__(self):
-        return f'User id: {self.game_uid}'
 
     def __str__(self):
         return f'User id: {self.game_uid}'
@@ -33,8 +31,10 @@ class User(db.Model):
     username = db.Column(db.String(20), nullable=False)
     email = db.Column(db.String(50), nullable=False)
     password = db.Column(db.String(60), nullable=False)
-    profile_image_file = db.Column(db.Text)
+    profile_image_file = db.Column(db.String(100), default='')
+    avatar_index = db.Column(db.Integer, default=0)
     creationDate = db.Column(db.Date, nullable=False, default=dt.utcnow())
+    game_score = db.Column(db.Integer, default=0)
 
     def __repr__(self):
         return f'User id: {self.uid}'
@@ -79,7 +79,7 @@ def register():
             else:
                 message = 'credentials error'
         except Exception as e:
-            message = f"an unknown error occured: {e}"
+            message = str(e)
         if req_success:
             return jsonify({'isSuccess': req_success, 'message': message, 'data': {'uid': uid, 'username': username, 'email': email}})
         else:
@@ -111,11 +111,31 @@ def login():
                 else:
                     message = 'user does not exist'
         except Exception as e:
-            message = f"an unknown error occured {e}"
+            message = str(e)
         if req_success:
             return jsonify({'isSuccess': req_success, 'message': message, 'data': {'uid': user_in_db.uid, 'username': user_in_db.username, 'email': user_in_db.email}})
         else:
             return jsonify({'isSuccess': req_success,'message': message, 'data': {}})
+
+@app.route('/api/user/update-profile-image', methods=["POST"])
+def update_profile_image():
+    req_success = False
+    message = ''
+    if request.method == "POST":
+        data = dict(request.form)
+        uid = dict["uid"]
+        photo_file = dict["photo_file"]
+        users = [user for user in User.query.filter_by(uid=uid).all()]
+        if len(users) == 1:
+            user = users[0]
+            user.profile_image_file = data['profile_image_file']
+            db.session.commit()
+            message = 'profile image was uploaded successfully'
+            req_success = True
+        else:
+            message = 'there is more than one user with the given uid'
+        return jsonify({'isSuccess': req_success, 'message': message})
+        
 
 # premeneatly deletes a user from the app
 @app.route('/api/user/delete', methods = ['GET', 'POST'])
@@ -165,7 +185,6 @@ def user_by_id(uid):
         except Exception as e:
             message = str(e)
         return jsonify({'isSuccess': req_success, 'message': message, 'data': {"username":user.username, "email":user.email, "uid": user.uid}})
-
 
 
 if __name__ == '__main__':

@@ -57,6 +57,16 @@ class CustomText extends StatelessWidget {
           maxLines: maxLines,
           overflow: isOverflow ? TextOverflow.ellipsis : null,
           textAlign: alignment,
+          style: TextStyle(
+            shadows: withShadow ?  [BoxShadow(offset: Offset(0, 0.1), color: blackClr, blurRadius: 0.1 )] : null,
+            height: height,
+            color: clr ?? Theme.of(context).iconTheme.color,
+            decoration: underlined ? TextDecoration.underline : null,
+            fontSize: size ?? 18.sp,
+            fontWeight: isBold ? FontWeight.bold : boldness,
+            fontFamily: fontFam,
+            letterSpacing: letterSpacing
+          ),
         )
       )
     : Text(
@@ -65,7 +75,7 @@ class CustomText extends StatelessWidget {
         style: TextStyle(
           shadows: withShadow ?  [BoxShadow(offset: Offset(0, 0.1), color: blackClr, blurRadius: 0.1 )] : null,
           height: height,
-          color: clr ?? whiteClr,
+          color: clr ?? Theme.of(context).iconTheme.color,
           decoration: underlined ? TextDecoration.underline : null,
           fontSize: size ?? 18.sp,
           fontWeight: isBold ? FontWeight.bold : boldness,

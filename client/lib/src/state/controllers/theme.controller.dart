@@ -6,19 +6,20 @@ import 'package:get/get.dart';
 // 1 --> the light theme
 // 2 --> the dark (blackish) theme
 class ThemeController extends GetxController{
-  var themeIndex = 0.obs;
+  int themeIndex = 0;
 
   /// call this method and pass it the theme index in order to chenge theme
   void changeTheme(int val){
-    themeIndex.value = val;
-    Get.changeTheme(AppTheme().getTheme(themeIndex.value));
+    themeIndex = val;
+    Get.changeTheme(AppTheme().getTheme(val));
     saveThemeIndexToLocalStorage(val);
+    update();
   }
 
   @override
   void onInit() {
-    themeIndex.value = getThemeIndexFromLocalStorage();
-    Get.changeTheme(AppTheme().getTheme(themeIndex.value));
+    themeIndex = getThemeIndexFromLocalStorage();
+    Get.changeTheme(AppTheme().getTheme(themeIndex));
     super.onInit();
   }
 

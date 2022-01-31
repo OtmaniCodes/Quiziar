@@ -6,8 +6,12 @@ class ComCont extends StatelessWidget {
   Widget kid;
   double? height;
   double? width;
+  double? borderThickness;
+  bool withAnimation;
+  Curve? animationCurve;
+  Duration? animationDur;
   Color? bgColor;
-  Color?borderColor;
+  Color? borderColor;
   double? roundingLevel;
   EdgeInsetsGeometry? givenPadd;
   EdgeInsetsGeometry? givenMarg;
@@ -25,9 +29,13 @@ class ComCont extends StatelessWidget {
     this.width,
     this.bgColor,
     this.borderColor,
+    this.borderThickness,
     this.givenMarg,
     this.givenPadd,
     this.roundingLevel,
+    this.animationDur,
+    this.animationCurve,
+    this.withAnimation = false,
     this.isCircular = false,
     this.withShadow = false,
     this.withRadius = true,
@@ -37,29 +45,41 @@ class ComCont extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final BoxDecoration _decoration = BoxDecoration(
+      shape: isCircular ? BoxShape.circle : BoxShape.rectangle,
+      borderRadius: withRadius ? BorderRadius.circular(roundingLevel ?? kDefaultRadiusPadd) : null,
+      border: withBorder ? Border.all(color: borderColor ?? whiteClr, width: borderThickness ?? 2.0) : null,
+      color: bgColor ?? Theme.of(context).canvasColor,    
+      boxShadow: withShadow
+        ? const [
+          BoxShadow(
+            color: Color(0x29000000),
+            offset: Offset(0, 3),
+            blurRadius: 6,
+          ),
+        ] : null,
+    );
     return GestureDetector(
       onTap: onTap,
-      child: Container(
-        height: height,
-        width: width,
-        padding: givenPadd ?? const EdgeInsets.all(20.0),
-        margin: givenMarg ?? const EdgeInsets.all(20.0),
-        child: kid,
-        decoration: BoxDecoration(
-          shape: isCircular ? BoxShape.circle : BoxShape.rectangle,
-          borderRadius: withRadius ? BorderRadius.circular(roundingLevel ?? kDefaultRadiusPadd) : null,
-          border: withBorder ? Border.all(color: borderColor ?? whiteClr, width: 2.0) : null,
-          color: bgColor ?? Theme.of(context).canvasColor,    
-          boxShadow: withShadow
-            ? const [
-              BoxShadow(
-                color: Color(0x29000000),
-                offset: Offset(0, 3),
-                blurRadius: 6,
-              ),
-            ] : null,
+      child: !withAnimation
+        ? Container(
+            height: height,
+            width: width,
+            padding: givenPadd ?? const EdgeInsets.all(20.0),
+            margin: givenMarg ?? const EdgeInsets.all(20.0),
+            child: kid,
+            decoration: _decoration
+          )
+        : AnimatedContainer(
+            duration: animationDur ?? const Duration(milliseconds: 300),
+            curve: animationCurve ?? Curves.linear,
+            height: height,
+            width: width,
+            padding: givenPadd ?? const EdgeInsets.all(20.0),
+            margin: givenMarg ?? const EdgeInsets.all(20.0),
+            child: kid,
+            decoration: _decoration
         ),
-      ),
     );
   }
 }

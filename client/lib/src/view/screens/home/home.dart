@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:client/src/models/category.dart';
 import 'package:client/src/services/api/api.dart';
+import 'package:client/src/services/db/local_storage/local_storage.dart';
 import 'package:client/src/state/categories_controller.dart';
 import 'package:client/src/state/controllers/categry_search_controller.dart';
 import 'package:client/src/state/controllers/profile_image_controller.dart';
@@ -14,7 +15,9 @@ import 'package:client/src/view/reused_widgets/reused_widgets.dart';
 import 'package:client/src/view/reused_widgets/widgets/comcont.dart';
 import 'package:client/src/view/reused_widgets/widgets/custom_text.dart';
 import 'package:client/src/view/reused_widgets/widgets/logo.dart';
+import 'package:client/src/view/screens/home/local_widgets/category_card.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:animate_do/animate_do.dart' as animatedo;
@@ -33,6 +36,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   void initState() {
+    
     _searchController = TextEditingController();
     super.initState();
   }
@@ -48,11 +52,17 @@ class _HomeScreenState extends State<HomeScreen> {
     final CategoriesController _cateController = Get.put(CategoriesController());
     // final ProfileImageController _profileImageController = Get.find<ProfileImageController>();
     final ProfileImageController _profileImageController = Get.put(ProfileImageController());
+    print(LocalStorage().getUserID());
     return Scaffold(
       body: GetBuilder(
         init: CategorySearchController(),
         builder: (CategorySearchController state) {
           final bool _isSearch = state.isSearch;
+          void _resetSearch(){
+            _searchController.text = '';
+            state.updateSearchTerm('');
+            if(FocusScope.of(context).hasFocus) FocusScope.of(context).unfocus();
+          }
           return CustomScrollView(
             slivers: [
               SliverAppBar(
@@ -65,6 +75,10 @@ class _HomeScreenState extends State<HomeScreen> {
                   padding: const EdgeInsets.all(8.0),
                   child: GestureDetector(
                     onTap: (){
+                      if(state.isSearch){
+                        state.toggleSearchState();
+                        _resetSearch();
+                      }
                       Get.toNamed('/settings');
                     },
                     child: ReusedWidgets.getProfileImage(
@@ -79,13 +93,12 @@ class _HomeScreenState extends State<HomeScreen> {
                     onPressed: (){
                       HelpFuncs.hapticFeedback(HapticIntensity.medium);
                       state.toggleSearchState();
-                      if(state.isSearch == false){
-                        _searchController.text = '';
-                        state.updateSearchTerm('');
-                        if(FocusScope.of(context).hasFocus) FocusScope.of(context).unfocus();
-                      }
+                      if(state.isSearch == false) _resetSearch();
                     },
-                    icon: FaIcon(!_isSearch ? FontAwesomeIcons.search : FontAwesomeIcons.times, color: whiteClr),
+                    icon: FaIcon(
+                      !_isSearch ? FontAwesomeIcons.search : FontAwesomeIcons.times,
+                      color: Theme.of(context).iconTheme.color,
+                    ),
                   ),
                 ],
                 title: _isSearch
@@ -127,8 +140,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                   );
                                 }
                               }else{
-                                return const Center(
-                                  child: CustomText(txt: 'Loading...')
+                                return Center(
+                                  child: ReusedWidgets.showLoading()
                                 );
                               }
                             },
@@ -138,9 +151,25 @@ class _HomeScreenState extends State<HomeScreen> {
                         ? List.generate(_cateController.categories.where((Category cate) => cate.name!.toLowerCase().startsWith(state.searchTerm.toLowerCase())).toList().length, (index)
                           => Padding(
                             padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.w),
-                            child: CategoryCard(category: _cateController.categories.where((Category cate) => cate.name!.toLowerCase().startsWith(state.searchTerm.toLowerCase())).toList()[index],
-                              index: index, verticalLayout: false),
-                          )) : <Widget>[CustomText(txt: 'couldn\'t find what you\'re looking for.')]
+                            child: CategoryCard(
+                              category: _cateController.categories.where((Category cate) => cate.name!.toLowerCase().startsWith(state.searchTerm.toLowerCase())).toList()[index],
+                              index: index,
+                              verticalLayout: false,
+                              onTap: (){
+                              if(state.isSearch){
+                                _resetSearch();
+                              }
+                            },
+                            ),
+                          ),
+                        ) : <Widget>[
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              CustomText(txt: 'couldn\'t find what you\'re looking for', size: 15.sp, alignment: TextAlign.center),
+                            ],
+                          )
+                      ]
                     )
                   ],
                 ),
@@ -168,7 +197,7 @@ class _HomeScreenState extends State<HomeScreen> {
               withShadow: true,
               kid: Row(
                 children: [
-                  FaIcon(FontAwesomeIcons.search, color: whiteClr.withOpacity(0.15)),
+                  FaIcon(FontAwesomeIcons.search, color: Theme.of(context).iconTheme.color?.withOpacity(0.3)),
                   ReusedWidgets.spaceOut(w: 10.w),
                   Expanded(
                     child: TextField(
@@ -181,7 +210,8 @@ class _HomeScreenState extends State<HomeScreen> {
                       },
                       maxLines: 1,
                       keyboardType: TextInputType.text,
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
+                        hintStyle: TextStyle(color: Theme.of(context).iconTheme.color?.withOpacity(0.3)),
                         hintText: 'Search for category, topic...',
                         border: InputBorder.none
                       ),
@@ -208,105 +238,12 @@ class _HomeScreenState extends State<HomeScreen> {
         mainAxisSpacing: 10.w
       ),
       itemBuilder: (BuildContext context, int index)
-        => CategoryCard(category: _categoriesData[index], index: index),
+      => CategoryCard(
+        category: _categoriesData[index],
+        index: index,
+      ),
     );
   }
 }
 
 
-class CategoryCard extends StatelessWidget {
-  final Category category;
-  final int index;
-  final bool verticalLayout;
-  const CategoryCard({
-    Key? key,
-    this.verticalLayout = true,
-    required this.category,
-    required this.index}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    Widget _getIndexWidget({double? indexSize}) 
-      => ComCont(
-        givenMarg: EdgeInsets.zero,
-        givenPadd: const EdgeInsets.all(5.0),
-        bgColor: Theme.of(context).primaryColor,
-        width: 50,
-        height: 50,
-        isCircular: true,
-        withRadius: false,
-        withBorder: true,
-        withShadow: true,
-        kid: Center(
-          child: Text((index+1).toString(),
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            fontSize: indexSize ?? 30,
-            fontFamily: 'boldPoppins',
-            shadows: const [
-              Shadow(
-                offset: Offset(0, 3),
-                color: Colors.grey,
-                blurRadius: 5  
-              )
-            ]
-          ),
-        ),
-      ),
-    );
-    _getQuestionsCount({double? indexSize}) 
-      => FutureBuilder<int>(
-      future: locator<ApiService>().getCategoryQuestionsCount(category.id!),
-      builder: (context, questionsCountSnap) {
-        final bool _hasData = questionsCountSnap.hasData ? questionsCountSnap.data != null : false;
-        if(_hasData){
-          return CustomText(
-          txt: "(${questionsCountSnap.data} questions)",
-          size: indexSize ?? 12,
-        );
-        }else{
-          return CustomText(
-            txt: "...",
-            size: indexSize ?? 12,
-          );
-        }
-      }
-    );
-    return ReusedWidgets.wrapWithInkEffect(
-      ComCont(
-        withShadow: true,
-        givenMarg: EdgeInsets.zero,
-        givenPadd: verticalLayout ? null : const EdgeInsets.all(10),
-        kid: verticalLayout
-          ? Column(
-            children: [
-              const Spacer(),
-              _getIndexWidget(),
-              const Spacer(flex: 2),
-              CustomText(
-                alignment: TextAlign.center,
-                txt: category.name ?? '',
-                size: 15.sp,
-                fontFam: 'boldPoppins',
-              ),
-              _getQuestionsCount(),
-              const Spacer(),
-            ],
-          )
-        : ListTile(
-          leading: _getIndexWidget(),
-          trailing: _getQuestionsCount(),
-          title: CustomText(
-            // alignment: TextAlign.center,
-            txt: category.name ?? '',
-            size: 15.sp,
-            fontFam: 'boldPoppins',
-          ),
-        )
-      ),
-      onTap: (){
-        print("hello");
-      }
-    );
-  }
-}

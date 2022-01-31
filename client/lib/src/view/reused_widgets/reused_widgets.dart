@@ -4,6 +4,7 @@ import 'package:client/src/utils/constants/constansts.dart';
 import 'package:client/src/utils/constants/palette.dart';
 import 'package:client/src/view/reused_widgets/widgets/custom_text.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
 
 class ReusedWidgets{
@@ -16,13 +17,34 @@ class ReusedWidgets{
     );
   }
 
+  static Widget showLoading({String? label, double? loaderSize, double?  textSize, Color? color}){
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        ReusedWidgets.spaceOut(h: 60),
+        SpinKitWave(
+          color: color ?? Colors.white,
+          size: loaderSize ?? 50.0,                                    
+        ),
+        ReusedWidgets.spaceOut(h: 30),
+        CustomText(txt: label ?? "Loading...", clr: color, size: textSize)
+      ],
+    );
+  }
+
   static Widget getProfileImage({bool isAvatar = false, String? imageFilePath, int? avatarIndex, double? width}){
     return CircleAvatar(
-      radius: width != null ? width / 2 : null,
       backgroundColor: Colors.white,
-      backgroundImage: !isAvatar
-        ? FileImage(File(imageFilePath??'')) as ImageProvider
-        : AssetImage('assets/images/avatars/$avatarIndex.png'),
+      child: ClipOval(
+        child: Image(
+          width: width,
+          height: width,
+          fit: BoxFit.fill,
+          image: !isAvatar
+            ? FileImage(File(imageFilePath??'')) as ImageProvider
+            : AssetImage('assets/images/avatars/$avatarIndex.png'),
+        ),
+      ),
     );
   }
 
@@ -49,11 +71,12 @@ class ReusedWidgets{
     );
   }
 
-  static Widget wrapWithInkEffect(Widget kid, {void Function()? onTap}){
+  static Widget wrapWithInkEffect(Widget kid, {void Function()? onTap, double? roundingLevel}){
     return Material(
       color: transClr,
       child: InkWell(
         onTap: onTap ?? (){},
+        borderRadius: BorderRadius.circular(roundingLevel ?? kDefaultRadiusPadd),
         child: kid,
       ),
     );

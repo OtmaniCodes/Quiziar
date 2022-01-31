@@ -1,4 +1,5 @@
 import 'package:client/src/utils/constants/constansts.dart';
+import 'package:client/src/utils/constants/palette.dart';
 import 'package:client/src/view/reused_widgets/widgets/custom_text.dart';
 import 'package:flutter/material.dart';
 
@@ -18,7 +19,7 @@ class AppLogo extends StatelessWidget {
           child: CustomText(
             txt: kAppTitle,
             size: bigTitleSize ?? 80,
-            clr: Theme.of(context).primaryColor,
+            clr: proClr,
             fontFam: 'boldPoppins',
             letterSpacing: lettersSpacing ?? 5,
           ),

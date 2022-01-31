@@ -1,7 +1,7 @@
 import 'package:get/get.dart';
 
 class ProfileImageController extends GetxController{
-  String imageAvatarIndex = '';
+  String imageAvatarIndex = '1';
   String imagePicturePath = '';
 
   void changeProfileAvatarIndex(String val){
