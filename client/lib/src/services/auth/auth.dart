@@ -18,8 +18,6 @@ abstract class AuthTemplate{
   Future deleteUserPermanently({required String uid});
 }
 
-
-
 class AuthService extends AuthTemplate{
  
   @override

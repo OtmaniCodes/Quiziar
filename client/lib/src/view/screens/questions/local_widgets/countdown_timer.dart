@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:client/src/models/answer.dart';
 import 'package:client/src/state/controllers/questions_controllers/carousel_view_controller.dart';
 import 'package:client/src/state/controllers/questions_controllers/countdown_animation_controller.dart';
 import 'package:client/src/state/controllers/questions_controllers/selected_answer_controller.dart';
@@ -43,7 +44,7 @@ class _CountDownTimerState extends State<CountDownTimer> with SingleTickerProvid
             _countDownCtrler.startAnimation();
             //! save progress and go to next question
             if(Get.find<SelectedAnswerController>().selectedAnswers.value.length < kQuestionsAmount-1){
-              Get.find<SelectedAnswerController>().addToSelectedAnswers({});
+              Get.find<SelectedAnswerController>().addToSelectedAnswers(Answer(answer: '~~skiped~~', isCorrect: false));
               Get.find<QuestionsCarouselCtrler>()..goToNextPage()..incrementIndex();
             }else{
               _countDownCtrler.resetSeconds();

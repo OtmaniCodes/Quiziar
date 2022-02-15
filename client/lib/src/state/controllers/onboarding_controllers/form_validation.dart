@@ -6,7 +6,7 @@ class SIUsernameValidationController extends GetxController {
 
   void changeErrorText(String val) => errorText.value = val;
 
-  void changeUsernameValidValidationState(bool val) =>
+  void changeUsernameValidationState(bool val) =>
       siUsernameValid.value = val;
 }
 

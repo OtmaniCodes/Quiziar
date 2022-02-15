@@ -6,7 +6,7 @@ import 'package:client/src/state/controllers/profile_image_controller.dart';
 import 'package:client/src/state/controllers/user_contollers/username.dart';
 import 'package:client/src/utils/constants/palette.dart';
 import 'package:client/src/utils/helpers/logger.dart';
-import 'package:client/src/utils/service_locator.dart';
+import 'package:client/src/services/service_locator.dart';
 import 'package:client/src/view/reused_widgets/reused_widgets.dart';
 import 'package:client/src/view/reused_widgets/widgets/comcont.dart';
 import 'package:client/src/view/reused_widgets/widgets/custom_text.dart';
@@ -100,8 +100,8 @@ class SettingsScreen extends StatelessWidget {
                   String _feedback = await locator<AuthService>().logout(uid: 'uid');
                   if(true){//_feedback == 'user is successfuly logged out'){
                     final LocalStorage _localStorage = LocalStorage();
-                    _localStorage..saveUserID('')..saveUserName('')..saveUserEmail('');
                     Get.find<AuthStateController>().sinkUserInStream(User());
+                    _localStorage..saveUserID('')..saveUserName('')..saveUserEmail('');
                     Get.back();
                     print("logged out");
                   }else{

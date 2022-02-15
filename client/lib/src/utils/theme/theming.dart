@@ -48,8 +48,6 @@ class AppTheme{
         textTheme: ButtonTextTheme.primary,
         buttonColor: AppTheme.getPrimaryColor(themeIndex),
       ),
-  //     textSelectionColor: Colors.green,
-  // textSelectionHandleColor: Colors.blue,
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ButtonStyle(
           backgroundColor: MaterialStateProperty.all(whiteClr),
@@ -63,7 +61,7 @@ class AppTheme{
       //     backgroundColor: isDwhiteColor : whiteColor, elevation: 4),
       // highlightColor: transClr,
       // splashColor: transClr,
-      textSelectionTheme: TextSelectionThemeData(cursorColor: AppTheme.getPrimaryColor(themeIndex), selectionColor: whiteClr, selectionHandleColor: whiteClr),
+      textSelectionTheme: TextSelectionThemeData(cursorColor: AppTheme.getPrimaryColor(themeIndex), selectionColor: whiteClr.withOpacity(0.15), selectionHandleColor: whiteClr),
       // backgroundColor: isDark ? darkMainColor : lightMainColor,
       // unselectedWidgetColor: whiteColor,
       scaffoldBackgroundColor: AppTheme.getSecondaryColor(themeIndex),

@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:client/src/models/answer.dart';
 import 'package:client/src/models/category.dart';
 import 'package:client/src/models/question.dart';
 import 'package:client/src/services/api/api.dart';
@@ -8,13 +9,10 @@ import 'package:client/src/state/controllers/questions_controllers/carousel_view
 import 'package:client/src/state/controllers/questions_controllers/countdown_animation_controller.dart';
 import 'package:client/src/state/controllers/questions_controllers/selected_answer_controller.dart';
 import 'package:client/src/utils/constants/constansts.dart';
-import 'package:client/src/utils/constants/enums.dart';
 import 'package:client/src/utils/constants/palette.dart';
-import 'package:client/src/utils/helpers/help_functions.dart';
 import 'package:client/src/utils/responsivity/responsivity.dart';
-import 'package:client/src/utils/service_locator.dart';
+import 'package:client/src/services/service_locator.dart';
 import 'package:client/src/view/reused_widgets/reused_widgets.dart';
-import 'package:client/src/view/reused_widgets/widgets/comcont.dart';
 import 'package:client/src/view/reused_widgets/widgets/custom_text.dart';
 import 'package:client/src/view/screens/questions/local_widgets/countdown_timer.dart';
 import 'package:client/src/view/screens/questions/local_widgets/question_view.dart';
@@ -99,7 +97,7 @@ class QuestionsScreen extends StatelessWidget {
                             textColor: whiteClr.withOpacity(_carouselViewCtrler.index.value+1 < kQuestionsAmount ? 1 : 0.25),
                             givenPadd: EdgeInsets.symmetric(horizontal: 10.w, vertical: 10.h),
                             onPress: _carouselViewCtrler.index.value+1 < kQuestionsAmount ? (){
-                              _selectedAnswerCtrler.addToSelectedAnswers({});
+                              _selectedAnswerCtrler.addToSelectedAnswers(Answer(answer: '~~skiped~~', isCorrect: false));
                               if(_selectedAnswerCtrler.selectedAnswer.isNotEmpty) _selectedAnswerCtrler.updateSelectedAnswer('');
                               Get.find<CountDownAnimationController>()
                                 ..resetSeconds()..resetAnimation()..startAnimation();
@@ -131,20 +129,22 @@ class QuestionsScreen extends StatelessWidget {
                                 }else{
                                 final String _chosenAnswer = _selectedAnswerCtrler.selectedAnswer.value;
                                 _selectedAnswerCtrler.addToSelectedAnswers(
-                                  {"Answer": _chosenAnswer,
-                                  "IsCorrect": _questionData[_carouselViewCtrler.index.value].incorrectAnswers!.contains(_chosenAnswer) == false});
+                                  Answer(answer: _chosenAnswer,
+                                    isCorrect: _questionData[_carouselViewCtrler.index.value].incorrectAnswers!.contains(_chosenAnswer) == false,
+                                  ));
                                 }
                                 } : null
                               : (){
                                 if(_selectedAnswerCtrler.selectedAnswers.length == kQuestionsAmount){
                                   Get.find<CountDownAnimationController>()..resetSeconds()..resetAnimation();
                                   _selectedAnswerCtrler.updateSelectedAnswer('');
-                                  Get.offNamed('/score_board');
+                                  Get.offNamed('/score_board', arguments: _selectedAnswerCtrler.selectedAnswers.value);
                                 }else{
                                    final String _chosenAnswer = _selectedAnswerCtrler.selectedAnswer.value;
                                   _selectedAnswerCtrler.addToSelectedAnswers(
-                                  {"Answer": _chosenAnswer,
-                                  "IsCorrect": _questionData[_carouselViewCtrler.index.value].incorrectAnswers!.contains(_chosenAnswer) == false});
+                                    Answer(answer: _chosenAnswer,
+                                    isCorrect: _questionData[_carouselViewCtrler.index.value].incorrectAnswers!.contains(_chosenAnswer) == false,
+                                  ));
                                 }
                               }
                           )

@@ -40,7 +40,8 @@ class ApiService{
   Future<List<Question>> getQuestionsByCategoryId(int categoryId) async {
     List<Question> _questions = <Question>[];
     try {
-      http.Response _response = await http.get(Uri.parse("${CONSTANTS.kTriviaQuestionsApiUrl}//api.php?amount=${CONSTANTS.kQuestionsAmount}&category=$categoryId&token=${LocalStorage().getUserID()}"));
+      // http.Response _response = await http.get(Uri.parse("${CONSTANTS.kTriviaQuestionsApiUrl}//api.php?amount=${CONSTANTS.kQuestionsAmount}&category=$categoryId&token=${LocalStorage().getUserID()}"));
+      http.Response _response = await http.get(Uri.parse("${CONSTANTS.kTriviaQuestionsApiUrl}//api.php?amount=${CONSTANTS.kQuestionsAmount}&category=$categoryId"));
       if(_response.statusCode == 200){
         var _body = jsonDecode(_response.body);
         switch(_body['response_code']){
@@ -59,6 +60,7 @@ class ApiService{
           case 4:
             DevLogger.logError("Token Empty Session Token has returned all possible questions for the specified query. Resetting the Token is necessary.");
             //TODO: reset the token (API Docs)
+            http.Response _response = await http.get(Uri.parse("${CONSTANTS.kTriviaQuestionsApiUrl}//api_token.php?command=reset&token=${LocalStorage().getUserID()}"));
             break;
         }
       }else{

@@ -1,4 +1,5 @@
-import 'package:client/src/state/controllers/onboarding_controllers/form_validation_controller.dart';
+import 'package:client/src/state/controllers/onboarding_controllers/auth_loading.dart';
+import 'package:client/src/state/controllers/onboarding_controllers/form_validation.dart';
 import 'package:client/src/state/controllers/user_contollers/con_password.dart';
 import 'package:client/src/state/controllers/user_contollers/email.dart';
 import 'package:client/src/state/controllers/user_contollers/password.dart';
@@ -168,20 +169,26 @@ class _OnboardingTextFieldsFormState extends State<OnboardingTextFieldsForm> {
   }
 
   Widget _buildSubmitButton(BuildContext context, {required String label}) {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 10.w),
-      child: Row(
-        children: [
-          Expanded(
-            child: ReusedWidgets.getMaterialButton(
-              label: label,
-              bgColor: Theme.of(context).primaryColor,
-              givenPadd: EdgeInsets.fromLTRB(19.w, 10.h, 19.w, 10.h),
-              onPress: widget.onSubmit ?? (){} 
-            ), 
+    final _authLoading = Get.find<AuthLoading>();
+    return Obx(
+        () {
+        return Padding(
+          padding: EdgeInsets.symmetric(horizontal: 10.w),
+          child: Row(
+            children: [
+              Expanded(
+                child: ReusedWidgets.getMaterialButton(
+                  label: label,
+                  textColor: whiteClr.withOpacity(!_authLoading.isLoading.value ? 1 : 0.15),
+                  bgColor: Theme.of(context).primaryColor,
+                  givenPadd: EdgeInsets.fromLTRB(19.w, 10.h, 19.w, 10.h),
+                  onPress: !_authLoading.isLoading.value ? widget.onSubmit ?? (){} : null 
+                ), 
+              ),
+            ],
           ),
-        ],
-      ),
+        );
+      }
     );
   }
 

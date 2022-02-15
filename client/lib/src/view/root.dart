@@ -1,9 +1,7 @@
 import 'package:client/src/models/user.dart';
-import 'package:client/src/services/api/api.dart';
-import 'package:client/src/services/auth/auth.dart';
 import 'package:client/src/state/controllers/auth_state_controller.dart';
 import 'package:client/src/utils/constants/enums.dart';
-import 'package:client/src/utils/service_locator.dart';
+import 'package:client/src/services/service_locator.dart';
 import 'package:client/src/view/screens/home/home.dart';
 import 'package:client/src/view/screens/onboarding/onboarding.dart';
 import 'package:flutter/material.dart';

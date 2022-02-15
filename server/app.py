@@ -158,14 +158,20 @@ def delete():
             message = str(e)
         return jsonify({'isSuccess': req_success, 'message': message})
 
-@app.route("/api/user/all", methods=["GET"])
-def all_users():
+@app.route("/api/user/get/<int:amount>", methods=["GET"])
+def all_users(amount):
     req_success = False
     message = ''
     if request.method == "GET":
         all_users = []
         try:
-            all_users = [{"username":user.username, "email":user.email, "uid": user.uid} for user in User.query.all()]
+            stored_users = []
+            if amount >= len(User.query.all()):
+                stored_users = User.query.all()
+            else:
+                for i in range(amount):
+                    stored_users.append(User.query.all()[i])
+            all_users = [{"username":user.username, "email":user.email, "uid": user.uid} for user in stored_users]
             req_success = True
             message = 'all users are retrieved'
         except Exception as e:

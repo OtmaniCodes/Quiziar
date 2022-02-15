@@ -1,12 +1,13 @@
+import 'package:client/src/models/answer.dart';
 import 'package:get/get.dart';
 
 class SelectedAnswerController extends GetxController{
   RxString selectedAnswer = ''.obs;
-  RxList<Map<String, dynamic>> selectedAnswers = <Map<String, dynamic>>[].obs;
+  var selectedAnswers = <Answer>[].obs;
 
-  void addToSelectedAnswers(Map<String, dynamic> val){
+  void addToSelectedAnswers(Answer val){
     selectedAnswers.add(val);
-    print(selectedAnswers);
+    print(val);
   }
 
   void updateSelectedAnswer(String val){

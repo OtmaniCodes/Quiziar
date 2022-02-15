@@ -3,7 +3,7 @@ import 'package:client/src/services/api/api.dart';
 import 'package:client/src/utils/constants/enums.dart';
 import 'package:client/src/utils/helpers/help_functions.dart';
 import 'package:client/src/utils/responsivity/responsivity.dart';
-import 'package:client/src/utils/service_locator.dart';
+import 'package:client/src/services/service_locator.dart';
 import 'package:client/src/view/reused_widgets/reused_widgets.dart';
 import 'package:client/src/view/reused_widgets/widgets/comcont.dart';
 import 'package:client/src/view/reused_widgets/widgets/custom_text.dart';

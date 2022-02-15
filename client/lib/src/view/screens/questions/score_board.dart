@@ -2,7 +2,9 @@ import 'dart:async';
 import 'dart:math';
 import 'dart:ui';
 
+import 'package:client/src/models/answer.dart';
 import 'package:client/src/services/db/local_storage/local_storage.dart';
+import 'package:client/src/state/controllers/questions_controllers/selected_answer_controller.dart';
 import 'package:client/src/utils/constants/constansts.dart';
 import 'package:client/src/utils/constants/palette.dart';
 import 'package:client/src/utils/responsivity/responsivity.dart';
@@ -11,13 +13,17 @@ import 'package:client/src/view/reused_widgets/widgets/comcont.dart';
 import 'package:client/src/view/reused_widgets/widgets/custom_text.dart';
 import 'package:flutter/material.dart';
 import 'package:animate_do/animate_do.dart' as animatedo;
+import 'package:get/get.dart';
 
 
 class ScoreBoared extends StatelessWidget {
-  const ScoreBoared({ Key? key }) : super(key: key);
+  const ScoreBoared({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    final List<Answer> answers = Get.arguments ?? [];
+    final int _correctAnswersCount = answers.where((answer) => answer.isCorrect).toList().length;
+    final int _inCorrectAnswersCount = answers.where((answer) => !answer.isCorrect).toList().length;
     Table _getTable(String txt1, String txt2, String txt3){
       return Table(
         columnWidths: const {0: FractionColumnWidth(0.6), 1: FractionColumnWidth(0.3), 2: FractionColumnWidth(0.1),},
@@ -46,6 +52,9 @@ class ScoreBoared extends StatelessWidget {
               givenPadd: EdgeInsets.symmetric(horizontal: 10.w, vertical: 10.h),
               kid: Column(
                 children: [
+                  _getTable("Correct Answers", ":", _correctAnswersCount.toString().padLeft(2, '0')),
+                  _getTable("Incorrect Answers", ":", _inCorrectAnswersCount.toString().padLeft(2, '0')),
+                  ReusedWidgets.spaceOut(h: 20.h),
                   animatedo.ZoomIn(
                     child: Transform.rotate(
                       angle: -(pi / 10),
@@ -63,26 +72,23 @@ class ScoreBoared extends StatelessWidget {
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              CustomText(txt: "05", size: 30.sp,),
+                              CustomText(txt: _correctAnswersCount.toString().padLeft(2, '0'), size: 30.sp,),
                               Container(
                                 height: 3,
                                 width: 60,
                                 color: whiteClr,
                               ),
-                              CustomText(txt: "10",size: 30.sp,),
+                              CustomText(txt: kQuestionsAmount.toString(),size: 30.sp,),
                             ],
                           )
                         ),
                       ),
                     ),
                   ),
+                  ReusedWidgets.spaceOut(h: 20.h),
+                  CustomText(txt: "Good Job!".toUpperCase(), fontFam: 'boldPoppins', size: 40.sp),
                   ReusedWidgets.spaceOut(h: 5.h),
-                  CustomText(txt: "Good Job!", fontFam: 'boldPoppins', size: 30.sp),
-                  ReusedWidgets.spaceOut(h: 20.h),
-                  _getTable("Correct Answers", ":", "04"),
-                  _getTable("Incorrect Answers", ":", "06"),
-                  ReusedWidgets.spaceOut(h: 20.h),
-                  CustomText(txt: "Right on ${LocalStorage().getUserName()}, You got 4 x 10 = 40 points added to your score, keep on learning.")
+                  CustomText(txt: "Right on ${LocalStorage().getUserName()}, You got $_correctAnswersCount x 10 = ${_correctAnswersCount * 10} points added to your score.\nKeep on learning.", alignment: TextAlign.center)
                 ],
               ),
             ),

@@ -1,4 +1,5 @@
 import 'package:client/src/utils/constants/enums.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/services.dart';
 
 class HelpFuncs{
@@ -23,5 +24,10 @@ class HelpFuncs{
         await Future.delayed(Duration(milliseconds: 100 * i), () => HapticFeedback.mediumImpact());
       }
     }
+  }
+
+  static Future<bool> isAppOffline() async {
+    final ConnectivityResult _connectivityResult = await Connectivity().checkConnectivity();
+    return _connectivityResult != ConnectivityResult.wifi && _connectivityResult != ConnectivityResult.mobile; 
   }
 }

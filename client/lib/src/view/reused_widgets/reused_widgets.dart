@@ -4,6 +4,7 @@ import 'package:client/src/utils/constants/constansts.dart';
 import 'package:client/src/utils/constants/palette.dart';
 import 'package:client/src/view/reused_widgets/widgets/custom_text.dart';
 import 'package:flutter/material.dart';
+import 'package:client/src/utils/responsivity/responsivity.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
 
@@ -53,6 +54,7 @@ class ReusedWidgets{
       splashColor: whiteClr.withOpacity(0.2),
       highlightColor: whiteClr.withOpacity(0.5),
       padding: givenPadd,
+      disabledColor: bgColor?.withOpacity(0.15),
       shape: withRadius ? RoundedRectangleBorder(borderRadius: BorderRadius.circular(kDefaultRadiusPadd)) : null,
       color: bgColor,
       onPressed: onPress,
@@ -60,9 +62,13 @@ class ReusedWidgets{
     );
   }
 
-  static showNotiSnakBar({required String message, bool fromTop = false, Color? bgColor}){
+  static showNotiSnakBar({required String message, Widget? icon, bool fromTop = false, Color? bgColor, bool isPopable = true}){
     Get.showSnackbar(
       GetSnackBar(
+        icon: icon,
+        margin: EdgeInsets.symmetric(vertical: 10.h, horizontal: 10.w),
+        isDismissible: isPopable,
+        mainButton: !isPopable ? null : TextButton(child: Text("Ok", style: TextStyle(color: whiteClr)), onPressed: () => Get.back()),
         message: message,
         snackPosition: fromTop ? SnackPosition.TOP : SnackPosition.BOTTOM,
         borderRadius: kDefaultRadiusPadd,

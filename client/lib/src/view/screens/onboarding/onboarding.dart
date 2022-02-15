@@ -1,9 +1,8 @@
 // ignore_for_file: curly_braces_in_flow_control_structures
-import 'dart:io';
-
 import 'package:client/src/services/auth/auth.dart';
 import 'package:client/src/services/db/local_storage/local_storage.dart';
-import 'package:client/src/state/controllers/onboarding_controllers/form_validation_controller.dart';
+import 'package:client/src/state/controllers/onboarding_controllers/auth_loading.dart';
+import 'package:client/src/state/controllers/onboarding_controllers/form_validation.dart';
 import 'package:client/src/state/controllers/onboarding_controllers/signup_stepper_index.dart';
 import 'package:client/src/state/controllers/profile_image_controller.dart';
 import 'package:client/src/state/controllers/user_contollers/con_password.dart';
@@ -15,7 +14,7 @@ import 'package:client/src/state/controllers/user_contollers/username.dart';
 import 'package:client/src/utils/constants/enums.dart';
 import 'package:client/src/utils/helpers/help_functions.dart';
 import 'package:client/src/utils/helpers/logger.dart';
-import 'package:client/src/utils/service_locator.dart';
+import 'package:client/src/services/service_locator.dart';
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
 
@@ -27,6 +26,7 @@ import 'package:client/src/view/reused_widgets/widgets/comcont.dart';
 import 'package:client/src/view/reused_widgets/widgets/logo.dart';
 import 'package:client/src/view/screens/onboarding/local_widgets/input_fields_form.dart';
 import 'package:client/src/utils/responsivity/responsivity.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -114,6 +114,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> with SingleTickerPr
     const int _stepsCount = 2;
     double _signFormHeight = 400.h;
     double _signFormWidth = 275.w;
+    final _authLoading = Get.put(AuthLoading());
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
@@ -180,45 +181,57 @@ class _OnboardingScreenState extends State<OnboardingScreen> with SingleTickerPr
                                         showUsername: true,
                                         showPassword: true,
                                         onSubmit: () async {
-                                          final bool _isValidated = _signInFormKey.currentState!.validate(); //? true if no errors 
-                                          bool usernameValid = true;
-                                          String usernameError = 'Please fill out this field.';
-                                          bool passwordValid = true;
-                                          String passwordError = 'Please fill out this field.';
-                                          if(_siUsernameCtrler.siUsername.isEmpty){
-                                            usernameValid = false;
-                                            usernameError = 'Please fill out this field.';
-                                          }else if(_siUsernameCtrler.siUsername.value.length < 5){
-                                            usernameValid = false;
-                                            usernameError = 'Please enter a username no less than 5 characters.';
-                                          }
-                                          if(_siPasswordCtrler.siPassword.isEmpty){
-                                            passwordValid = false;
-                                            passwordError = 'Please fill out this field.';
-                                          }else if(_siPasswordCtrler.siPassword.value.length < 6){
-                                            passwordValid = false;
-                                            passwordError = 'Password should be at least 6 characters long.';
-                                          }
-                                          _siUsernameVaidatorCtrler.changeUsernameValidValidationState(!usernameValid);
-                                          _siPasswordVaidatorCtrler.changePasswordValidationState(!passwordValid);
-                                          if (_isValidated && usernameValid && passwordValid){
-                                            HelpFuncs.hapticFeedback(HapticIntensity.medium);
-                                            _signInFormKey.currentState!.save();
-                                            try {
-                                              String _feedback = await locator<AuthService>().loginWithUsernameAndPassword(username: _siUsernameCtrler.siUsername.value, password: _siPasswordCtrler.siPassword.value);
-                                              if(_feedback == 'user is successfuly logged in'){
-                                                Get.offAllNamed("/home");
-                                                print(_feedback);
-                                              }else{
-                                                ReusedWidgets.showNotiSnakBar(message: _feedback);
-                                              }
-                                            } catch (e) {
-                                              DevLogger.logError(e.toString(), cause: "Signin form");
+                                          final bool _offline = await HelpFuncs.isAppOffline();
+                                          if(_offline){
+                                            ReusedWidgets.showNotiSnakBar(
+                                              message: "There is no internet available, please check your wifi, mobile data...",
+                                              icon: const Icon(Icons.warning),
+                                            );
+                                          }else{
+                                            final bool _isValidated = _signInFormKey.currentState!.validate(); //? true if no errors 
+                                            bool usernameValid = true;
+                                            String usernameError = 'Please fill out this field.';
+                                            bool passwordValid = true;
+                                            String passwordError = 'Please fill out this field.';
+                                            if(_siUsernameCtrler.siUsername.isEmpty){
+                                              usernameValid = false;
+                                              usernameError = 'Please fill out this field.';
+                                            }else if(_siUsernameCtrler.siUsername.value.length < 5){
+                                              usernameValid = false;
+                                              usernameError = 'Please enter a username no less than 5 characters.';
                                             }
-                                          }else {
-                                            _siUsernameVaidatorCtrler.changeErrorText(usernameError);
-                                            _siPasswordVaidatorCtrler.changeErrorText(passwordError);
-                                            HelpFuncs.hapticFeedback(HapticIntensity.vibrate, doubleHaptic: true);
+                                            if(_siPasswordCtrler.siPassword.isEmpty){
+                                              passwordValid = false;
+                                              passwordError = 'Please fill out this field.';
+                                            }else if(_siPasswordCtrler.siPassword.value.length < 6){
+                                              passwordValid = false;
+                                              passwordError = 'Password should be at least 6 characters long.';
+                                            }
+                                            _siUsernameVaidatorCtrler.changeUsernameValidationState(!usernameValid);
+                                            _siPasswordVaidatorCtrler.changePasswordValidationState(!passwordValid);
+                                            if (_isValidated && usernameValid && passwordValid){
+                                              HelpFuncs.hapticFeedback(HapticIntensity.medium);
+                                              _signInFormKey.currentState!.save();
+                                              try {
+                                                _authLoading.changeLoadingState(true);
+                                                ReusedWidgets.showNotiSnakBar(icon: SpinKitCircle(size: 30, color: whiteClr), message: "Please wait...", isPopable: false);
+                                                String _feedback = await locator<AuthService>().loginWithUsernameAndPassword(username: _siUsernameCtrler.siUsername.value, password: _siPasswordCtrler.siPassword.value);
+                                                _authLoading.changeLoadingState(false);
+                                                Get.back();
+                                                print(_feedback);
+                                                if(_feedback == 'user is successfuly logged in'){
+                                                  Get.offAllNamed("/home");
+                                                }else{
+                                                  ReusedWidgets.showNotiSnakBar(message: _feedback);
+                                                }
+                                              } catch (e) {
+                                                DevLogger.logError(e.toString(), cause: "Signin form");
+                                              }
+                                            }else {
+                                              _siUsernameVaidatorCtrler.changeErrorText(usernameError);
+                                              _siPasswordVaidatorCtrler.changeErrorText(passwordError);
+                                              HelpFuncs.hapticFeedback(HapticIntensity.vibrate, doubleHaptic: true);
+                                            }
                                           }
                                         },
                                       ),
@@ -239,23 +252,28 @@ class _OnboardingScreenState extends State<OnboardingScreen> with SingleTickerPr
                                     return Column(
                                       children: [
                                         ReusedWidgets.spaceOut(h: 20.h),
-                                        Row(
-                                          children: <Widget>[
-                                            TextButton(
-                                              onPressed: details.onStepCancel,
-                                              child: Text('Back', style: TextStyle(color: _stepIndex > 0 ? Colors.blueAccent : Colors.grey),),
-                                            ),
-                                            ReusedWidgets.spaceOut(w: 10.w),
-                                            ReusedWidgets.getMaterialButton(
-                                              onPress: _stepIndex <= _stepsCount ? details.onStepContinue : (){},
-                                              bgColor: Theme.of(context).primaryColor,
-                                              kid: Padding(
-                                                padding: EdgeInsets.fromLTRB(5.w, 5.h, 5.w, 5.h),
-                                                child: CustomText(txt: _stepIndex == 2 ? 'Done' : 'Next'),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
+                                        Obx(
+                                          (){
+                                            return Row(
+                                              children: <Widget>[
+                                                TextButton(
+                                                  onPressed: !_authLoading.isLoading.value ? details.onStepCancel : null,
+                                                  child: Text('Back', style: TextStyle(color: _stepIndex > 0 ? Colors.blueAccent : Colors.grey),),
+                                                ),
+                                                ReusedWidgets.spaceOut(w: 10.w),
+                                                ReusedWidgets.getMaterialButton(
+                                                  onPress: _stepIndex <= _stepsCount ? !_authLoading.isLoading.value ? details.onStepContinue : null : (){},
+                                                  textColor: whiteClr.withOpacity(!_authLoading.isLoading.value ? 1 : 0.15),
+                                                  bgColor: Theme.of(context).primaryColor,
+                                                  kid: Padding(
+                                                    padding: EdgeInsets.fromLTRB(5.w, 5.h, 5.w, 5.h),
+                                                    child: CustomText(txt: _stepIndex == 2 ? 'Done' : 'Next'),
+                                                  ),
+                                                ),
+                                              ],
+                                            );
+                                          }
+                                        )
                                       ],
                                     );
                                   },
@@ -265,97 +283,110 @@ class _OnboardingScreenState extends State<OnboardingScreen> with SingleTickerPr
                                     }
                                   },
                                   onStepContinue: () async {
-                                    if (state.stepperStep <= _stepsCount){
-                                      if (state.stepperStep == 0){
-                                        final bool _isValidated = _signUp1FormKey.currentState!.validate(); //? true if no errors 
-                                        bool usernameValid = true;
-                                        String usernameError = 'Please fill out this field.';
-                                        bool emailValid = true;
-                                        String emailError = 'Please fill out this field.';
-                                        if(_usernameCtrler.username.isEmpty){
-                                          usernameValid = false;
-                                          usernameError = 'Please fill out this field.';
-                                        }else if(_usernameCtrler.username.value.length < 5){
-                                          usernameValid = false;
-                                          usernameError = 'Please enter a username no less than 5 characters.';
-                                        }
-                                        if(_emailCtrler.email.isEmpty){
-                                          emailValid = false;
-                                          emailError = 'Please fill out this field.';
-                                        }else if(!GetUtils.isEmail(_emailCtrler.email.value)){
-                                          emailValid = false;
-                                          emailError = 'Please enter a valid email address.';
-                                        }
-                                        _usernameVaidatorCtrler.changeUsernameValidValidationState(!usernameValid);
-                                        _emailVaidatorCtrler.changeEmailValidationState(!emailValid);
-                                        if (_isValidated && usernameValid && emailValid){
-                                          HelpFuncs.hapticFeedback(HapticIntensity.medium);
-                                          _signUp1FormKey.currentState!.save();
-                                          if(FocusScope.of(context).hasFocus) FocusScope.of(context).unfocus();
-                                          state.increment();
-                                        }else{
-                                          _usernameVaidatorCtrler.changeErrorText(usernameError);
-                                          _emailVaidatorCtrler.changeErrorText(emailError);
-                                          HelpFuncs.hapticFeedback(HapticIntensity.vibrate, doubleHaptic: true);
-                                        }
-                                      }else if (state.stepperStep == 1){
-                                        final bool _isValidated = _signUp2FormKey.currentState!.validate(); //? true if no errors 
-                                        bool passwordValid = true;
-                                        String passwordError = 'Please fill out this field.';
-                                        bool conpasswordValid = true;
-                                        String conpasswordError = 'Please fill out this field.';
-                                        if(_passwordCtrler.password.isEmpty){
-                                          passwordValid = false;
-                                          passwordError = 'Please fill out this field.';
-                                        }else if(_passwordCtrler.password.value.length < 6){
-                                          passwordValid = false;
-                                          passwordError = 'Password should be at least 6 characters long.';
-                                        }
-                                        if(_conPasswordCtrler.conPassword.isEmpty){
-                                          conpasswordValid = false;
-                                          conpasswordError = 'Please fill out this field.';
-                                        }else if(_conPasswordCtrler.conPassword.value.length < 6){
-                                          conpasswordValid = false;
-                                          conpasswordError = 'Password should be at least 6 characters long.';
-                                        }else if(_conPasswordCtrler.conPassword.value != _passwordCtrler.password.value){
-                                          conpasswordValid = false;
-                                          conpasswordError = 'passwords do not match.';
-                                        }
-                                        _passwordVaidatorCtrler.changePasswordValidationState(!passwordValid);
-                                        _conPasswordVaidatorCtrler.changeConPasswordValidationState(!conpasswordValid);
-                                        if (_isValidated && passwordValid && conpasswordValid){
-                                          HelpFuncs.hapticFeedback(HapticIntensity.medium);
-                                          _signUp2FormKey.currentState!.save();
-                                          if(FocusScope.of(context).hasFocus) FocusScope.of(context).unfocus();
-                                          state.increment();
-                                        }else{
-                                          _passwordVaidatorCtrler.changeErrorText(passwordError);
-                                          _conPasswordVaidatorCtrler.changeErrorText(conpasswordError);
-                                          HelpFuncs.hapticFeedback(HapticIntensity.vibrate, doubleHaptic: true);
-                                        }
-                                      }else if (state.stepperStep == 2){
-                                        try {
-                                          String _feedback = await locator<AuthService>().registerWithUsernameAndPassword(
-                                            username: _usernameCtrler.username.value,
-                                            password: _passwordCtrler.password.value,
-                                            email: _emailCtrler.email.value,
-                                          );
-                                          if(_feedback == 'user is successfuly registered'){
-                                            final _profileImageCtler = Get.find<ProfileImageController>();
-                                            String uid = LocalStorage().getUserID();
-                                            String _uploadResult = '';
-                                            if(_profileImageCtler.imagePicturePath.isNotEmpty){
-                                              _uploadResult = await locator<AuthService>().uploadProfileImageFile(uid, _profileImageCtler.imagePicturePath);
-                                            }else {
-                                              _uploadResult = await locator<AuthService>().uploadProfileAvatarIndex(uid, int.parse(_profileImageCtler.imageAvatarIndex));
-                                            }
-                                            print(_uploadResult);
-                                            Get.toNamed('/home'); //! should be Get.offAll...
-                                          }else{
-                                            ReusedWidgets.showNotiSnakBar(message: _feedback);
+                                    final bool _offline = await HelpFuncs.isAppOffline();
+                                    if(_offline){
+                                      ReusedWidgets.showNotiSnakBar(
+                                        message: "There is no internet available, please check your wifi, mobile data...",
+                                        icon: const Icon(Icons.warning),
+                                      );
+                                    }else{
+                                      if (state.stepperStep <= _stepsCount){
+                                        if (state.stepperStep == 0){
+                                          final bool _isValidated = _signUp1FormKey.currentState!.validate(); //? true if no errors 
+                                          bool usernameValid = true;
+                                          String usernameError = 'Please fill out this field.';
+                                          bool emailValid = true;
+                                          String emailError = 'Please fill out this field.';
+                                          if(_usernameCtrler.username.isEmpty){
+                                            usernameValid = false;
+                                            usernameError = 'Please fill out this field.';
+                                          }else if(_usernameCtrler.username.value.length < 5){
+                                            usernameValid = false;
+                                            usernameError = 'Please enter a username no less than 5 characters.';
                                           }
-                                        } catch (e) {
-                                          DevLogger.logError(e.toString(), cause: "Signup form");
+                                          if(_emailCtrler.email.isEmpty){
+                                            emailValid = false;
+                                            emailError = 'Please fill out this field.';
+                                          }else if(!GetUtils.isEmail(_emailCtrler.email.value)){
+                                            emailValid = false;
+                                            emailError = 'Please enter a valid email address.';
+                                          }
+                                          _usernameVaidatorCtrler.changeUsernameValidValidationState(!usernameValid);
+                                          _emailVaidatorCtrler.changeEmailValidationState(!emailValid);
+                                          if (_isValidated && usernameValid && emailValid){
+                                            HelpFuncs.hapticFeedback(HapticIntensity.medium);
+                                            _signUp1FormKey.currentState!.save();
+                                            if(FocusScope.of(context).hasFocus) FocusScope.of(context).unfocus();
+                                            state.increment();
+                                          }else{
+                                            _usernameVaidatorCtrler.changeErrorText(usernameError);
+                                            _emailVaidatorCtrler.changeErrorText(emailError);
+                                            HelpFuncs.hapticFeedback(HapticIntensity.vibrate, doubleHaptic: true);
+                                          }
+                                        }else if (state.stepperStep == 1){
+                                          final bool _isValidated = _signUp2FormKey.currentState!.validate(); //? true if no errors 
+                                          bool passwordValid = true;
+                                          String passwordError = 'Please fill out this field.';
+                                          bool conpasswordValid = true;
+                                          String conpasswordError = 'Please fill out this field.';
+                                          if(_passwordCtrler.password.isEmpty){
+                                            passwordValid = false;
+                                            passwordError = 'Please fill out this field.';
+                                          }else if(_passwordCtrler.password.value.length < 6){
+                                            passwordValid = false;
+                                            passwordError = 'Password should be at least 6 characters long.';
+                                          }
+                                          if(_conPasswordCtrler.conPassword.isEmpty){
+                                            conpasswordValid = false;
+                                            conpasswordError = 'Please fill out this field.';
+                                          }else if(_conPasswordCtrler.conPassword.value.length < 6){
+                                            conpasswordValid = false;
+                                            conpasswordError = 'Password should be at least 6 characters long.';
+                                          }else if(_conPasswordCtrler.conPassword.value != _passwordCtrler.password.value){
+                                            conpasswordValid = false;
+                                            conpasswordError = 'passwords do not match.';
+                                          }
+                                          _passwordVaidatorCtrler.changePasswordValidationState(!passwordValid);
+                                          _conPasswordVaidatorCtrler.changeConPasswordValidationState(!conpasswordValid);
+                                          if (_isValidated && passwordValid && conpasswordValid){
+                                            HelpFuncs.hapticFeedback(HapticIntensity.medium);
+                                            _signUp2FormKey.currentState!.save();
+                                            if(FocusScope.of(context).hasFocus) FocusScope.of(context).unfocus();
+                                            state.increment();
+                                          }else{
+                                            _passwordVaidatorCtrler.changeErrorText(passwordError);
+                                            _conPasswordVaidatorCtrler.changeErrorText(conpasswordError);
+                                            HelpFuncs.hapticFeedback(HapticIntensity.vibrate, doubleHaptic: true);
+                                          }
+                                        }else if (state.stepperStep == 2){
+                                          try {
+                                            _authLoading.changeLoadingState(true);
+                                            ReusedWidgets.showNotiSnakBar(icon: SpinKitCircle(size: 30, color: whiteClr), message: "Please wait...", isPopable: false);
+                                            String _feedback = await locator<AuthService>().registerWithUsernameAndPassword(
+                                              username: _usernameCtrler.username.value,
+                                              password: _passwordCtrler.password.value,
+                                              email: _emailCtrler.email.value,
+                                            );
+                                            print(_feedback);
+                                            _authLoading.changeLoadingState(false);
+                                            Get.back();
+                                            if(_feedback == 'user is successfuly registered'){
+                                              final _profileImageCtler = Get.find<ProfileImageController>();
+                                              String uid = LocalStorage().getUserID();
+                                              String _uploadResult = '';
+                                              if(_profileImageCtler.imagePicturePath.isNotEmpty){
+                                                _uploadResult = await locator<AuthService>().uploadProfileImageFile(uid, _profileImageCtler.imagePicturePath);
+                                              }else {
+                                                _uploadResult = await locator<AuthService>().uploadProfileAvatarIndex(uid, int.parse(_profileImageCtler.imageAvatarIndex));
+                                              }
+                                              print(_uploadResult);
+                                              Get.toNamed('/home'); //! should be Get.offAll...
+                                            }else{
+                                              ReusedWidgets.showNotiSnakBar(message: _feedback);
+                                            }
+                                          } catch (e) {
+                                            DevLogger.logError(e.toString(), cause: "Signup form");
+                                          }
                                         }
                                       }
                                     }
