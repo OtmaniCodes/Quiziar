@@ -2,6 +2,7 @@
 
 This is a mobile app trivia game designed to challenge your knowledge on various topics.
 
+
 ## Technologies Used
 
 - **Backend**: Python with Flask
