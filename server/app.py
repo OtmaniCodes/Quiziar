@@ -6,6 +6,7 @@ import uuid
 from datetime import datetime as dt
 from validations.email_validation import EmailValidartor
 from validations.password_validation import PasswordValidartor
+import os
 
 #? db.create_all() #- should be run once from the terminal (DONE)
 #? db.drop_all() #- should be run once from the terminal (DONE)
