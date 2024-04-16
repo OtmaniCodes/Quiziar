@@ -3,7 +3,7 @@
 This is a mobile app trivia game designed to challenge your knowledge on various topics.
 
 
-## Technologies Used
+## Technologies Used:
 
 - **Backend**: Python with Flask
 - **Frontend**: Dart with Flutter
