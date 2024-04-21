@@ -1,4 +1,4 @@
-# Quiziar: Trivia Game Mobile App (Under Development)
+# Quiziar: Trivia Mobile Game App (Under Development)
 
 This is a mobile app trivia game designed to challenge your knowledge on various topics.
 
