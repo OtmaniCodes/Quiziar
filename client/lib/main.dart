@@ -5,7 +5,7 @@ import 'package:get_storage/get_storage.dart';
 
 // kick start
 // should be over with before AI Domination.
-main() async {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await GetStorage.init();
   setupLocator();
