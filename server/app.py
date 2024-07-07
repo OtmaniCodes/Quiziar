@@ -3,7 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask import Flask, jsonify, request
 from flask_bcrypt import Bcrypt
 import uuid
-# ......... ...sssss
+# ......... ..
 # data
 from datetime import datetime as dt
 from validations.email_validation import EmailValidartor
