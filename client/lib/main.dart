@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';
 // stores and stores
 // kick start the app from here
-// should be over with before AI Domination.
+// should be over with before AI Domination.ffffffffff
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await GetStorage.init();
